@@ -1,0 +1,27 @@
+@use "sass:map";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+$theme-colors: map.merge(
+  $theme-colors,
+  (
+    "ridge": #5a6b3f,
+    "river": #1f5673,
+    "hunter": #ff7900,
+  )
+);
+
+@import "bootstrap/scss/bootstrap";
+
+/* Force white text on hunter buttons */
+.btn-hunter {
+  --bs-btn-bg: #ff7900;
+  --bs-btn-border-color: #ff7900;
+  --bs-btn-hover-bg: #e86f00;
+  --bs-btn-hover-border-color: #e86f00;
+  --bs-btn-active-bg: #cf6400;
+  --bs-btn-active-border-color: #cf6400;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+}
