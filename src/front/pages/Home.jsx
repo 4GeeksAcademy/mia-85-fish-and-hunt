@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import rigoImageUrl from "../assets/img/rigo-baby.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import toast from "react-hot-toast"
 
 export const Home = () => {
 
@@ -47,6 +48,8 @@ export const Home = () => {
 					</span>
 				)}
 			</div>
+			<button className="btn btn-hunter" onClick={() => toast.success("Yahoo!!")}>Click for toast.success</button>
+			<button className="btn btn-river" onClick={() => toast.error("BooHoo!!")}>Click for toast.error</button>
 		</div>
 	);
 }; 
