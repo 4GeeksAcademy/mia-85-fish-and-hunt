@@ -137,7 +137,6 @@ export default function MapBasic({
             mapTypeControl: false,
             streetViewControl: false,
             clickableIcons: false,
-            fullscreenControl: false,
             ...(mapId ? {} : { styles: themedStyles }),
             ...options,
         }),
