@@ -6,6 +6,7 @@ import { StoreProvider } from './hooks/useGlobalReducer';
 import { BackendURL } from './components/BackendURL';
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./styles/custom.scss";
+import { MapProvider } from './utils/MapProvider';
 import { Toaster } from "react-hot-toast";
 
 const Main = () => {
@@ -18,8 +19,10 @@ const Main = () => {
     return (
         <React.StrictMode>
             <StoreProvider>
-                <RouterProvider router={router}>
-                </RouterProvider>
+                <MapProvider>
+                    <RouterProvider router={router}>
+                    </RouterProvider>
+                </MapProvider>
             </StoreProvider>
             <Toaster />
         </React.StrictMode>
