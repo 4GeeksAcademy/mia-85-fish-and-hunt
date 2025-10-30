@@ -3,17 +3,16 @@ import { Link } from "react-router-dom";
 export const Navbar = () => {
 
 	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
+		<header className="site-header">
+			<div className="header-inner">
+				<h1 className="site-title">Fish & Hunt</h1>
+				<nav className="main-nav">
+					<Link href="#fishing" className="nav-link">Fishing</Link>
+					<Link href="#hunting" className="nav-link">Hunting</Link>
+					<Link href="#login" className="nav-link">Login</Link>
+					<Link href="/signup" className="nav-link">Signup</Link>
+				</nav>
 			</div>
-		</nav>
+		</header>
 	);
 };

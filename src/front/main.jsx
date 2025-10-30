@@ -6,6 +6,7 @@ import { StoreProvider } from './hooks/useGlobalReducer';
 import { BackendURL } from './components/BackendURL';
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./styles/custom.scss";
+import "./styles/index.css"
 import { Toaster } from "react-hot-toast";
 
 const Main = () => {
