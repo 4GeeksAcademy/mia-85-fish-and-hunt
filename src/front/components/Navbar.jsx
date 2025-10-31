@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 export const Navbar = () => {
 	return (
-		<header className="py-2 px-1 border-bottom border-black-15 bg-transparent">
-			<nav className="navbar navbar-expand-lg navbar-dark">
-				<div className="container">
-					<Link to="/" className="navbar-brand fw-bold text-hunter">
-						Fish &amp; Hunt
+		<nav className="navbar navbar-light bg-light">
+			<div className="container">
+				<Link to="/">
+					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
+				</Link>
+				<div className="ml-auto">
+					<Link to="/signup">
+						<button className="btn btn-hunter">Sign up</button>
 					</Link>
 					<button
 						className="navbar-toggler"
