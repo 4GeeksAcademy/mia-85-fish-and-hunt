@@ -30,13 +30,15 @@ def handle_signup():
     email = body.get("email")
     password = body.get("password")
     user_name = body.get("user_name")
+    zipcode = body.get("zipcode")
 
     # only check by email for existence
     if User.query.filter_by(email=email).first():
         return jsonify({"message": "User already exists, please login!"}), 400
 
     # create & persist the mapped instance
-    newUser = User(email=email, password=password, user_name=user_name)
+    newUser = User(email=email, password=password,
+                   user_name=user_name, zipcode=zipcode)
     db.session.add(newUser)
     db.session.commit()              # newUser.id is now available
 

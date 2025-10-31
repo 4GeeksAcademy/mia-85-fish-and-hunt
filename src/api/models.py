@@ -13,16 +13,11 @@ class User(db.Model):
     # locations: Mapped["LocationsList"] = relationship(
     #     back_populates="user", cascade="all, delete-orphan", uselist=False)
     user_name: Mapped[str] = mapped_column(String, nullable=False)
-    zipcode: Mapped[int] = mapped_column(Integer)
-    # latitude: Mapped[int] =  mapped_column(Integer)
-    # longitude: Mapped[int] = mapped_column(Integer)
+    zipcode: Mapped[int] = mapped_column(Integer, nullable=True)
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
-            "locations": self.locations,
             "user_name": self.user_name,
-            "zipcode": self.zipcode,
-            # do not serialize the password, its a security breach
         }
