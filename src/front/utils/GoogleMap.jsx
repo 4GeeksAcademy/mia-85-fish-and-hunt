@@ -1,19 +1,18 @@
+// GoogleMap.jsx
 import { GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import ZipSearch from "./ZipSearch";
 import { IoFish } from "react-icons/io5";
 import { RiCrosshair2Line } from "react-icons/ri";
+import ZipSearch from "./ZipSearch";
 
 const DEFAULT_CENTER = { lat: 33.4484, lng: -112.074 };
 
-// Convert a React icon to a data URL for Google Maps `icon.url`
 const svgDataUrl = (node) =>
     `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
         renderToStaticMarkup(node)
     )}`;
 
-// A tasteful dark style (you can replace with your own or a mapId)
 const DARK_STYLES = [
     { elementType: "geometry", stylers: [{ color: "#1d2c4d" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#8ec3b9" }] },
@@ -37,7 +36,6 @@ const DARK_STYLES = [
     },
 ];
 
-// Helper to decide styles based on theme prop
 function useThemedStyles(theme, baseHidePoi = true) {
     const prefersDark =
         typeof window !== "undefined" &&
@@ -45,7 +43,6 @@ function useThemedStyles(theme, baseHidePoi = true) {
         window.matchMedia("(prefers-color-scheme: dark)").matches;
 
     if (theme === "dark" || (theme === "auto" && prefersDark)) return DARK_STYLES;
-    // Light theme: still hide POIs/icons if desired:
     if (baseHidePoi) {
         return [
             { featureType: "poi", stylers: [{ visibility: "off" }] },
@@ -55,25 +52,13 @@ function useThemedStyles(theme, baseHidePoi = true) {
     return undefined;
 }
 
-/**
- * MapBasic (enhanced)
- * Props:
- * - center, zoom
- * - hotspots: [{ id, name, type: "fishing"|"hunting", position, directions? }]
- * - theme: "light" | "dark" | "auto" (default "auto")
- * - aspectRatio: string like "16 / 9" | "4 / 3" (default "4 / 3")
- * - rounded: CSS radius (default "1rem")
- * - shadow: boolean (default true)
- * - className, style: extra classes/styles for the OUTER wrapper
- * - options: extra Google Map options (merged)
- * - mapId: optional Google Cloud styled map id (overrides styles if provided)
- */
 export default function MapBasic({
     center = DEFAULT_CENTER,
     zoom = 11,
-    // width, // legacy – ignore when using aspect-ratio
-    // height, // legacy – ignore when using aspect-ratio
-    hotspots, // optional; uses sample if not passed
+    hotspots, // optional
+    selected, // optional
+    onSelect, // optional
+    filter = { query: "", types: ["fishing", "hunting"] },
     theme = "auto",
     aspectRatio = "4 / 3",
     rounded = "1rem",
@@ -83,31 +68,45 @@ export default function MapBasic({
     options = {},
     mapId,
 }) {
-    const [selected, setSelected] = useState(null);
+    // Uncontrolled fallback:
+    const [internalSelected, setInternalSelected] = useState(null);
+    const sel = selected ?? internalSelected;
+    const setSel = onSelect ?? setInternalSelected;
 
-    // Default hotspots (you can pass real data from parent)
-    const data = useMemo(
-        () =>
-            hotspots ?? [
-                {
-                    id: 1,
-                    name: "Reef A",
-                    type: "fishing",
-                    position: { lat: 33.45, lng: -112.08 },
-                    directions: "https://maps.app.goo.gl/VuzYRoxzCWuBFvM8A",
-                },
-                {
-                    id: 2,
-                    name: "WMA Gate",
-                    type: "hunting",
-                    position: { lat: 33.44, lng: -112.06 },
-                    directions: "https://maps.app.goo.gl/7Pa1f2RtMsReWN4KA",
-                },
-            ],
-        [hotspots]
-    );
+    const mapRef = useRef(null);
 
-    // Icon objects (valid for <Marker icon={...}>)
+    const data = useMemo(() => {
+        const source = hotspots ?? [
+            {
+                id: 1,
+                name: "Reef A",
+                type: "fishing",
+                position: { lat: 33.45, lng: -112.08 },
+                directions: "https://maps.app.goo.gl/VuzYRoxzCWuBFvM8A",
+            },
+            {
+                id: 2,
+                name: "WMA Gate",
+                type: "hunting",
+                position: { lat: 33.44, lng: -112.06 },
+                directions: "https://maps.app.goo.gl/7Pa1f2RtMsReWN4KA",
+            },
+        ];
+        const q = (filter?.query ?? "").trim().toLowerCase();
+        const types = new Set(filter?.types ?? ["fishing", "hunting"]);
+        return source.filter(
+            (h) => types.has(h.type) && (q === "" || h.name.toLowerCase().includes(q))
+        );
+    }, [hotspots, filter]);
+
+    // Pan/zoom to selected
+    useEffect(() => {
+        if (!sel || !mapRef.current) return;
+        mapRef.current.panTo(sel.position);
+        mapRef.current.setZoom(13);
+    }, [sel]);
+
+    // Marker icons
     const icons = useMemo(() => {
         const size = 34;
         const fish = svgDataUrl(<IoFish size={size} color="#f1f1f1" />);
@@ -129,10 +128,8 @@ export default function MapBasic({
         };
     }, []);
 
-    // Themed styles (if no mapId)
     const themedStyles = useThemedStyles(theme);
 
-    // Merge options
     const mapOptions = useMemo(
         () => ({
             mapTypeControl: false,
@@ -144,20 +141,19 @@ export default function MapBasic({
         [themedStyles, options, mapId]
     );
 
-    // Wrapper styling: rounded, shadow, responsive size
     const wrapperStyle = {
         width: "100%",
-        aspectRatio, // responsive height calculated from width
+        aspectRatio, // responsive
         borderRadius: rounded,
-        overflow: "hidden", // clips map corners
+        overflow: "hidden",
         boxShadow: shadow ? "0 10px 30px rgba(0,0,0,.12)" : undefined,
         ...style,
     };
 
     return (
         <div className={`map-card ${className}`} style={wrapperStyle}>
-            {/* Fill 100% of wrapper */}
             <GoogleMap
+                onLoad={(m) => (mapRef.current = m)}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 center={center}
                 zoom={zoom}
@@ -165,32 +161,30 @@ export default function MapBasic({
                 mapContainerClassName="map-container"
                 mapId={mapId}
             >
-                {/* Search overlay */}
+                {/* ZIP search overlay */}
                 <ZipSearch defaultZoom={12} country="US" />
+
                 {data.map((h) => (
                     <Marker
                         key={h.id}
                         position={h.position}
-                        onClick={() => setSelected(h)}
+                        onClick={() => setSel(h)}
                         icon={icons[h.type]}
                     />
                 ))}
 
-                {selected && (
-                    <InfoWindow
-                        position={selected.position}
-                        onCloseClick={() => setSelected(null)}
-                    >
+                {sel && (
+                    <InfoWindow position={sel.position} onCloseClick={() => setSel(null)}>
                         <div>
-                            <strong>{selected.name}</strong>
+                            <strong>{sel.name}</strong>
                             <br />
-                            <small>{selected.type}</small>
-                            {selected.directions && (
+                            <small>{sel.type}</small>
+                            {sel.directions && (
                                 <>
                                     <br />
                                     <small>
                                         <a
-                                            href={selected.directions}
+                                            href={sel.directions}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
