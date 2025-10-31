@@ -4,10 +4,11 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { StoreProvider } from './hooks/useGlobalReducer';
 import { BackendURL } from './components/BackendURL';
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "./styles/custom.scss";
 import { MapProvider } from './utils/MapProvider';
 import { Toaster } from "react-hot-toast";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "./styles/custom.scss";
+import "./styles/index.css"
 
 const Main = () => {
 
