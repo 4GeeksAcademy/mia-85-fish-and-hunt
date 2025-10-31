@@ -40,8 +40,7 @@ export const Home = () => {
 					</button>
 				</div>
 			</div>
-			<button className="btn btn-hunter" onClick={() => toast.success("Yahoo!!")}>Click for toast.success</button>
-			<button className="btn btn-river" onClick={() => toast.error("BooHoo!!")}>Click for toast.error</button>
-		</div>
+		</main>
+
 	);
 };
