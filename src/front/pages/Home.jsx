@@ -1,36 +1,40 @@
-
-
 export const Home = () => {
 	function handleButtonClick(action) {
 		console.log("Button clicked:", action);
-
 	}
+
 	return (
-		<>
-			<main className="main-hero">
-				<div className="hero-inner">
-					<p className="center-title">The Essential Outdoorsmen Map</p>
-					<h2 className="hero-title">
-						Track, Navigate, and Connect with
-						<span className="emph">Just a Click</span>.
-					</h2>
-					<p className="lead">
-						Fish & Hunt provides high-definition maps, real-time weather, and
-						built for Fishing & Hunting enthusiasts.
-					</p>
+		<main className="py-5">
+			<div className="container text-center">
+				<p className="text-uppercase fw-bold text-hunter mb-2 tracking-widest">
+					The Essential Outdoorsmen Map
+				</p>
 
-					<div className="cta-container">
-						<button
-							onClick={handleButtonClick('Download iOS')}
-							className="btn btn-primary"
-						>
-							<span>Search</span>
-						</button>
-					</div>
+				<h2 className="display-4 fw-black text-white mb-3">
+					Track, Navigate, and Connect with<br /><span className="text-ridge">Just a Click</span>.
+				</h2>
+
+				<p className="mt-2 mx-auto mb-4 fs-5 text-mutedtone maxw-54">
+					Fish &amp; Hunt provides high-definition maps, real-time weather, and
+					tools built for fishing and hunting enthusiasts.
+				</p>
+
+				<div className="d-flex flex-wrap justify-content-center gap-3">
+					<button
+						onClick={() => handleButtonClick("Search")}
+						className="btn btn-hunter btn-lg"
+					>
+						<span>Search</span>
+					</button>
+
+					<button
+						onClick={() => handleButtonClick("Learn More")}
+						className="btn btn-outline-hunter btn-lg"
+					>
+						<span>Learn More</span>
+					</button>
 				</div>
-			</main>
-
-
-
-		</>);
-}; 
+			</div>
+		</main>
+	);
+};

@@ -8,8 +8,7 @@ $theme-colors: map.merge(
     "ridge": #5a6b3f,
     "river": #1f5673,
     "hunter": #ff7900,
-    "darkgreen": #06402b,
-    "amber": #ffbf00,
+    "mutedtone": #9aa3a8,
   )
 );
 
@@ -26,4 +25,40 @@ $theme-colors: map.merge(
   --bs-btn-color: #fff;
   --bs-btn-hover-color: #fff;
   --bs-btn-active-color: #fff;
+}
+
+/* Variant: outline version for hunter */
+.btn-outline-hunter {
+  --bs-btn-color: #ff7900;
+  --bs-btn-border-color: #ff7900;
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: #ff7900;
+  --bs-btn-hover-border-color: #ff7900;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #cf6400;
+  --bs-btn-active-border-color: #cf6400;
+  --bs-btn-active-color: #fff;
+}
+
+/* Thin borders matching your index.css */
+.border-black-15 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.border-black-06 {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Utility to cap hero text width similar to your 54rem */
+.maxw-54 {
+  max-width: 54rem;
+}
+
+/* Tight tracking for that hero eyebrow line */
+.tracking-widest {
+  letter-spacing: 0.2em;
+}
+
+/* heavier weight helper */
+.fw-black {
+  font-weight: 900 !important;
 }
