@@ -1,7 +1,6 @@
-// ZipSearch.jsx
-import { useState } from "react";
 import { useGoogleMap } from "@react-google-maps/api";
-import toast from "react-hot-toast"
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ZipSearch({ defaultZoom = 12, country = "US" }) {
     const map = useGoogleMap();
@@ -9,13 +8,24 @@ export default function ZipSearch({ defaultZoom = 12, country = "US" }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!map || !zip.trim()) return;
+
+        // --- Validation ---
+        const trimmed = zip.trim();
+        if (!trimmed) {
+            toast.error("Please enter a ZIP code.");
+            return;
+        }
+        if (!/^\d{5}$/.test(trimmed)) {
+            toast.error("ZIP must be 5 digits long and numbers only.");
+            return;
+        }
+        if (!map) return;
 
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode(
             {
-                address: zip.trim(),
-                componentRestrictions: { country } // hard restrict to US
+                address: trimmed,
+                componentRestrictions: { country }, // hard restrict to US
             },
             (results, status) => {
                 if (status === "OK" && results?.length) {
@@ -27,8 +37,7 @@ export default function ZipSearch({ defaultZoom = 12, country = "US" }) {
                         map.setZoom(defaultZoom);
                     }
                 } else {
-                    // up to you: toast, alert, etc.
-                    toast.error("ZIP not found:", status);
+                    toast.error("ZIP not found. Please try again.");
                 }
             }
         );
@@ -48,7 +57,7 @@ export default function ZipSearch({ defaultZoom = 12, country = "US" }) {
                 background: "white",
                 padding: "6px 8px",
                 borderRadius: 8,
-                boxShadow: "0 8px 24px rgba(0,0,0,.12)"
+                boxShadow: "0 8px 24px rgba(0,0,0,.12)",
             }}
         >
             <input
@@ -61,10 +70,12 @@ export default function ZipSearch({ defaultZoom = 12, country = "US" }) {
                     border: "1px solid #ddd",
                     borderRadius: 6,
                     padding: "6px 8px",
-                    minWidth: 140
+                    minWidth: 140,
                 }}
             />
-            <button type="submit" className="btn btn-river">Go</button>
+            <button type="submit" className="btn btn-river">
+                Go
+            </button>
         </form>
     );
 }
