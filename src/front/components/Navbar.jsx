@@ -22,7 +22,7 @@ export const Navbar = () => {
 						<ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
 							{/* In-page anchors should stay as <a> */}
 							<li className="nav-item">
-								<a href="#fishing" className="nav-link">Fishing</a>
+								<a href="#fishing" className="nav-link hover:link-hunter">Fishing</a>
 							</li>
 							<li className="nav-item">
 								<a href="#hunting" className="nav-link">Hunting</a>
