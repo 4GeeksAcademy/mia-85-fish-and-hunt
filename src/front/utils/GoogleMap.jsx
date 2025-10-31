@@ -1,6 +1,7 @@
 import { GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
 import { useMemo, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import ZipSearch from "./ZipSearch";
 import { IoFish } from "react-icons/io5";
 import { RiCrosshair2Line } from "react-icons/ri";
 
@@ -164,6 +165,8 @@ export default function MapBasic({
                 mapContainerClassName="map-container"
                 mapId={mapId}
             >
+                {/* Search overlay */}
+                <ZipSearch defaultZoom={12} country="US" />
                 {data.map((h) => (
                     <Marker
                         key={h.id}
