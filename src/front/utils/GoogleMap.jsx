@@ -178,7 +178,8 @@ export default function MapBasic({
                         <div>
                             <strong>{sel.name}</strong>
                             <br />
-                            <small>{sel.type}</small>
+                            <small>{sel.type.charAt(0).toUpperCase() + sel.type.slice(1)}</small>
+                            <br />
                             <small><a href={sel.directions} target="_blank" rel="noopener noreferrer">View on Google Maps</a></small>
                         </div>
                     </InfoWindow>
