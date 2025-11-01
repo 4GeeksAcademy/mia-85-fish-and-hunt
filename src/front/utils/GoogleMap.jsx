@@ -179,20 +179,7 @@ export default function MapBasic({
                             <strong>{sel.name}</strong>
                             <br />
                             <small>{sel.type}</small>
-                            {sel.directions && (
-                                <>
-                                    <br />
-                                    <small>
-                                        <a
-                                            href={sel.directions}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            View on Google Maps
-                                        </a>
-                                    </small>
-                                </>
-                            )}
+                            <small><a href={sel.directions} target="_blank" rel="noopener noreferrer">View on Google Maps</a></small>
                         </div>
                     </InfoWindow>
                 )}
