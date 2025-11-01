@@ -13,20 +13,16 @@ import "./styles/index.css"
 const Main = () => {
 
     if (! import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_URL == "") return (
-        <React.StrictMode>
-            <BackendURL />
-        </React.StrictMode>
+        <BackendURL />
     );
     return (
-        <React.StrictMode>
-            <StoreProvider>
-                <MapProvider>
-                    <RouterProvider router={router}>
-                    </RouterProvider>
-                </MapProvider>
-            </StoreProvider>
+        <StoreProvider>
+            <MapProvider>
+                <RouterProvider router={router}>
+                </RouterProvider>
+            </MapProvider>
             <Toaster />
-        </React.StrictMode>
+        </StoreProvider>
     );
 }
 

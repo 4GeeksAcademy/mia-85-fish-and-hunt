@@ -173,8 +173,8 @@ export default function MapBasic({
                     />
                 ))}
 
-                {sel && (
-                    <InfoWindow position={sel.position} onCloseClick={() => setSel(null)}>
+                {mapRef.current && sel && (
+                    <InfoWindow key={sel.id} position={sel.position} onCloseClick={() => setSel(null)}>
                         <div>
                             <strong>{sel.name}</strong>
                             <br />
