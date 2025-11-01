@@ -12,18 +12,21 @@ export function useHotspots(baseUrl = import.meta.env.VITE_BACKEND_URL) {
         name: "Reef A",
         type: "fishing",
         position: { lat: 33.45, lng: -112.08 },
+        directions: "https://maps.app.goo.gl/PtrGVhafgeynBWJ27",
       },
       {
         id: 2,
         name: "WMA Gate",
         type: "hunting",
         position: { lat: 33.44, lng: -112.06 },
+        directions: "https://maps.app.goo.gl/kyy4kvNwRcy4NtDq9",
       },
       {
         id: 3,
         name: "Canal Bend",
         type: "fishing",
         position: { lat: 33.455, lng: -112.02 },
+        directions: "https://maps.app.goo.gl/YMqEBMrw2iAsN1ar9",
       },
     ],
     []
