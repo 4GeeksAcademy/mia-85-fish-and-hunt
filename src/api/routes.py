@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import create_access_token, jwt_required
+from sqlalchemy import select
 
 api = Blueprint('api', __name__)
 
@@ -20,3 +22,41 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+
+@api.route('/signup', methods=["POST"])
+def handle_signup():
+    # ensure a JSON body was provided
+    try:
+        body = request.get_json()
+    except Exception:
+        return jsonify({"message": "Request body required"}), 400
+    if not body:
+        return jsonify({"message": "Request body required"}), 400
+    # read expected fields
+    email = body.get("email")
+    password = body.get("password")
+    user_name = body.get("username")
+
+    # validate required fields
+    missing = []
+    if not email:
+        missing.append("email")
+    if not password:
+        missing.append("password")
+    if not user_name:
+        missing.append("username")
+    if missing:
+        return jsonify({"message": "Missing required fields", "fields": missing}), 400
+
+    # only check by email for existence
+    if User.query.filter_by(email=email).first():
+        return jsonify({"message": "User already exists, please login!"}), 400
+
+    # create & persist the mapped instance
+    newUser = User(email=email, password=password, user_name=user_name)
+    db.session.add(newUser)
+    db.session.commit()              # newUser.id is now available
+
+    token = create_access_token(identity=str(newUser.id))
+    return jsonify({"token": token, "user": newUser.serialize()}), 201
