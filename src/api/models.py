@@ -34,12 +34,11 @@ class Location(db.Model):
     #     back_populates="liked_locations"
     # )
 
-
-def serialize(self):
-    return {
-        "id": self.id,
-        "name": self.name,
-        "type": self.type,
-        "position": self.position,
-        "directions": self.directions,
-    }
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.type,
+            "position": self.position,
+            "directions": self.directions,
+        }

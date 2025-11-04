@@ -31,18 +31,32 @@ def get_all_locations():
 
 @api.route('/location', methods=['POST'])
 def create_locations():
-    data = request.get_json()
-    name = data.get("name")
-    type_ = data.get("type")
-    position = data.get("position")
-    directions = data.get("directions")
+    # ensure a JSON body was provided
+    try:
+        body = request.get_json()
+    except Exception:
+        return jsonify({"message": "Request body required"}), 400
+    if not body:
+        return jsonify({"message": "Request body required"}), 400
+    name = body.get("name")
+    type = body.get("type")
+    position = body.get("position")
+    directions = body.get("directions")
 
-    if not name or not type_ or not position:
-        return jsonify({"error": "Missing required fields: name, type, or position"}), 400
+# validate required fields
+    missing = []
+    if not name:
+        missing.append("name")
+    if not type:
+        missing.append("type")
+    if not position:
+        missing.append("position")
+    if missing:
+        return jsonify({"message": "Missing required fields", "fields": missing}), 400
 
     new_location = Location(
         name=name,
-        type=type_,
+        type=type,
         position=position,
         directions=directions
     )
@@ -54,3 +68,10 @@ def create_locations():
         "message": "Location added",
         "location": new_location.serialize()
     }), 201
+
+    # Example request body:
+    # {
+    #   "name": "Lackawana",
+    #   "type": "fishing",
+    #   "position": { "longitude": 45.0, "latitude": 62.0 }
+    # }
