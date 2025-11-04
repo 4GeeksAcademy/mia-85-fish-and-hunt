@@ -1,7 +1,4 @@
-import React, { useEffect } from "react"
-import rigoImageUrl from "../assets/img/rigo-baby.jpg";
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
-import toast from "react-hot-toast"
+import TheMap from "../components/TheMap"
 
 export const Home = () => {
 	function handleButtonClick(action) {
@@ -38,6 +35,9 @@ export const Home = () => {
 					>
 						<span>Learn More</span>
 					</button>
+				</div>
+				<div className="d-flex flex-column align-items-center justify-content-center m-5">
+					<TheMap />
 				</div>
 			</div>
 		</main>
