@@ -26,19 +26,35 @@ def handle_hello():
 
 @api.route('/signup', methods=["POST"])
 def handle_signup():
-    body = request.json or {}
+    # ensure a JSON body was provided
+    try:
+        body = request.get_json()
+    except Exception:
+        return jsonify({"message": "Request body required"}), 400
+    if not body:
+        return jsonify({"message": "Request body required"}), 400
+    # read expected fields
     email = body.get("email")
     password = body.get("password")
-    user_name = body.get("user_name")
-    zipcode = body.get("zipcode")
+    user_name = body.get("username")
+
+    # validate required fields
+    missing = []
+    if not email:
+        missing.append("email")
+    if not password:
+        missing.append("password")
+    if not user_name:
+        missing.append("username")
+    if missing:
+        return jsonify({"message": "Missing required fields", "fields": missing}), 400
 
     # only check by email for existence
     if User.query.filter_by(email=email).first():
         return jsonify({"message": "User already exists, please login!"}), 400
 
     # create & persist the mapped instance
-    newUser = User(email=email, password=password,
-                   user_name=user_name, zipcode=zipcode)
+    newUser = User(email=email, password=password, user_name=user_name)
     db.session.add(newUser)
     db.session.commit()              # newUser.id is now available
 
