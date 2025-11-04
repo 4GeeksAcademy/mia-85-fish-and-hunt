@@ -23,13 +23,6 @@ export const Navbar = () => {
 
 					<div className="collapse navbar-collapse" id="mainNav">
 						<ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-							{/* In-page anchors should stay as <a> */}
-							<li className="nav-item">
-								<a href="#fishing" className="nav-link">Fishing</a>
-							</li>
-							<li className="nav-item">
-								<a href="#hunting" className="nav-link">Hunting</a>
-							</li>
 							{/* Routes use <Link to> */}
 							<li className="nav-item">
 								<Link to="/login" className="nav-link">Login</Link>

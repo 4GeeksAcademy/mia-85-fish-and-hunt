@@ -21,7 +21,8 @@ export const Home = () => {
 					tools built for fishing and hunting enthusiasts.
 				</p>
 
-				<div className="d-flex flex-wrap justify-content-center gap-3">
+				{/* COMMENTED OUT BUTTONS FOR NOW SO WE CAN FOCUS */}
+				{/* <div className="d-flex flex-wrap justify-content-center gap-3">
 					<button
 						onClick={() => handleButtonClick("Search")}
 						className="btn btn-hunter btn-lg"
@@ -35,7 +36,7 @@ export const Home = () => {
 					>
 						<span>Learn More</span>
 					</button>
-				</div>
+				</div> */}
 				<div className="d-flex flex-column align-items-center justify-content-center m-5">
 					<TheMap />
 				</div>
