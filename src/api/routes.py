@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Location
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import create_access_token, jwt_required
 from sqlalchemy import select
 
 api = Blueprint('api', __name__)
@@ -31,6 +32,8 @@ def get_all_locations():
 
 @api.route('/location', methods=['POST'])
 def create_locations():
+@api.route('/signup', methods=["POST"])
+def handle_signup():
     # ensure a JSON body was provided
     try:
         body = request.get_json()
