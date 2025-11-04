@@ -24,6 +24,12 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
+@api.route("/users", methods=["GET"])
+def get_all_users():
+    users = db.session.execute(select(User)).scalars().all()
+    return jsonify([user.serialize() for user in users]), 200
+
+
 @api.route('/signup', methods=["POST"])
 def handle_signup():
     # ensure a JSON body was provided
