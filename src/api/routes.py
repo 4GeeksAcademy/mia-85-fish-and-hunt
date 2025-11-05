@@ -159,3 +159,26 @@ def create_fish_species():
         "message": "Fish species added",
         "fish": new_fish.serialize()
     }), 201
+
+
+@api.route("/login", methods=["POST"])
+def handle_login():
+    body = request.json
+    email = body.get("email", None)
+    password = body.get("password", None)
+    if email is None or password is None:
+        return jsonify(dict(message="Missing Credentials")), 400
+    user = db.session.scalars(select(User).where(
+        User.email == email)).one_or_none()
+    if user is None:
+        return jsonify(dict(message="User doesn't exist")), 400
+    if user.password != password:
+        return jsonify(dict(message="Bad Credentials")), 400
+    # user has been authenticated
+    # create the token
+    user_token = create_access_token(identity=str(user.id))
+    response_body = dict(
+        token=user_token,
+        user=user.serialize()
+    )
+    return jsonify(response_body), 201
