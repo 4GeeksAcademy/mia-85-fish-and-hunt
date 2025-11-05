@@ -17,18 +17,24 @@ CORS(api)
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
-
     response_body = {
         "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
     }
-
     return jsonify(response_body), 200
+
+# ---------------------------------------------------------------------------- #
+#                                 GET All Users                                #
+# ---------------------------------------------------------------------------- #
 
 
 @api.route("/users", methods=["GET"])
 def get_all_users():
     users = db.session.execute(select(User)).scalars().all()
     return jsonify([user.serialize() for user in users]), 200
+
+# ---------------------------------------------------------------------------- #
+#                               POST User Signup                               #
+# ---------------------------------------------------------------------------- #
 
 
 @api.route('/signup', methods=["POST"])
@@ -70,12 +76,53 @@ def handle_signup():
 
     token = create_access_token(identity=str(newUser.id))
     return jsonify({"token": token, "user": newUser.serialize()}), 201
+    # Example request body:
+    # {
+    #   "email": "user@example.com",
+    #   "password": "securepassword",
+    #   "username": "newuser"
+    # }
+
+# ---------------------------------------------------------------------------- #
+#                                POST Login User                               #
+# ---------------------------------------------------------------------------- #
 
 
+@api.route("/login", methods=["POST"])
+def handle_login():
+    body = request.json
+    email = body.get("email", None)
+    password = body.get("password", None)
+    if email is None or password is None:
+        return jsonify(dict(message="Missing Credentials")), 400
+    user = db.session.scalars(select(User).where(
+        User.email == email)).one_or_none()
+    if user is None:
+        return jsonify(dict(message="User doesn't exist")), 400
+    # compare the provided password with the stored hash
+    if not check_password_hash(user.password, password):
+        return jsonify(dict(message="Bad Credentials")), 400
+    # user has been authenticated
+    # create the token
+    user_token = create_access_token(identity=str(user.id))
+    response_body = dict(
+        token=user_token,
+        user=user.serialize()
+    )
+    return jsonify(response_body), 201
+
+
+# ---------------------------------------------------------------------------- #
+#                               GET All Locations                              #
+# ---------------------------------------------------------------------------- #
 @api.route("/location", methods=["GET"])
 def get_all_locations():
     locations = db.session.execute(select(Location)).scalars().all()
     return jsonify([location.serialize() for location in locations]), 200
+
+# ---------------------------------------------------------------------------- #
+#                             POST Create Location                             #
+# ---------------------------------------------------------------------------- #
 
 
 @api.route('/location', methods=['POST'])
@@ -117,13 +164,16 @@ def create_locations():
         "message": "Location added",
         "location": new_location.serialize()
     }), 201
-
     # Example request body:
     # {
     #   "name": "Lackawana",
     #   "type": "fishing",
     #   "position": { "longitude": 45.0, "latitude": 62.0 }
     # }
+
+# ---------------------------------------------------------------------------- #
+#                               POST Create Fish                               #
+# ---------------------------------------------------------------------------- #
 
 
 @api.route('/fish-species', methods=['POST'])
@@ -163,26 +213,9 @@ def create_fish_species():
         "message": "Fish species added",
         "fish": new_fish.serialize()
     }), 201
-
-
-@api.route("/login", methods=["POST"])
-def handle_login():
-    body = request.json
-    email = body.get("email", None)
-    password = body.get("password", None)
-    if email is None or password is None:
-        return jsonify(dict(message="Missing Credentials")), 400
-    user = db.session.scalars(select(User).where(
-        User.email == email)).one_or_none()
-    if user is None:
-        return jsonify(dict(message="User doesn't exist")), 400
-    if user.password != password:
-        return jsonify(dict(message="Bad Credentials")), 400
-    # user has been authenticated
-    # create the token
-    user_token = create_access_token(identity=str(user.id))
-    response_body = dict(
-        token=user_token,
-        user=user.serialize()
-    )
-    return jsonify(response_body), 201
+    # Example request body:
+    # {
+    #   "name": "Largemouth Bass",
+    #   "wiki_link": "https://en.wikipedia.org/wiki/Largemouth_bass",
+    #   "image_link": "https://upload.wikimedia.org/wikipedia/commons/...
+    # }
