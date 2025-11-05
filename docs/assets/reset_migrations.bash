@@ -1,4 +1,4 @@
-rm -R -f ./migrations &&
+rm -rf ./migrations &&
 pipenv run init &&
 dropdb -h localhost -U gitpod example || true &&
 createdb -h localhost -U gitpod example || true &&
