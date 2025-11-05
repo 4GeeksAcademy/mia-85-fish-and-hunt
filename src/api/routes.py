@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Location
+from api.models import db, User, Location, Fish
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required
@@ -120,3 +120,42 @@ def create_locations():
     #   "type": "fishing",
     #   "position": { "longitude": 45.0, "latitude": 62.0 }
     # }
+
+
+@api.route('/fish-species', methods=['POST'])
+def create_fish_species():
+    # ensure a JSON body was provided
+    try:
+        body = request.get_json()
+    except Exception:
+        return jsonify({"message": "Request body required"}), 400
+    if not body:
+        return jsonify({"message": "Request body required"}), 400
+    name = body.get("name")
+    wiki_link = body.get("type")
+    image_link = body.get("position")
+
+# validate required fields
+    missing = []
+    if not name:
+        missing.append("name")
+    if not wiki_link:
+        missing.append("wiki_link")
+    if not image_link:
+        missing.append("image_link")
+    if missing:
+        return jsonify({"message": "Missing required fields", "fields": missing}), 400
+
+    new_fish = Fish(
+        name=name,
+        wiki_link=wiki_link,
+        image_link=image_link
+    )
+
+    db.session.add(new_fish)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Fish species added",
+        "fish": new_fish.serialize()
+    }), 201
