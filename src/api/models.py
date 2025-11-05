@@ -46,3 +46,19 @@ class Location(db.Model):
             "position": self.position,
             "directions": self.directions,
         }
+
+
+class Fish(db.Model):
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    wiki_link: Mapped[str] = mapped_column(String(255), nullable=True)
+    image_link: Mapped[str] = mapped_column(String(255), nullable=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "wiki_link": self.wiki_link,
+            "image_link": self.image_link,
+        }
