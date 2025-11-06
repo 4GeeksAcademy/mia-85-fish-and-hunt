@@ -111,6 +111,16 @@ def handle_login():
     )
     return jsonify(response_body), 201
 
+# ---------------------------------------------------------------------------- #
+#                               POST Logout                              #
+# ---------------------------------------------------------------------------- #
+
+
+@api.route("/logout", methods=["POST"])
+def handle_logout():
+    body = request.json
+    return jsonify(body), 201
+
 
 # ---------------------------------------------------------------------------- #
 #                               GET All Locations                              #
