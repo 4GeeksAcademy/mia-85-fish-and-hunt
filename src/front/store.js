@@ -1,7 +1,8 @@
 export const initialStore = (initialValues) => {
+  const token = localStorage.getItem("token") || undefined;
   return {
     API_BASE_URL: import.meta.env.VITE_BACKEND_URL,
-    token: undefined,
+    token: token,
     message: null,
     ...initialValues,
   };
