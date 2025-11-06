@@ -1,21 +1,48 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigate } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 import toast from "react-hot-toast"
 
 export const Login = () => {
+    const { store, dispatch } = useGlobalReducer();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    const handleSubmit = (e) => {
+    const navigate = useNavigate();
+    async function sendLoginRequest(e) {
         e.preventDefault();
-        toast.success("Feature coming soon! 🎉")
-        console.log("Email:", email);
-        console.log("Password:", password);
-    };
+        try {
+            const response = await fetch(`${store.API_BASE_URL}/api/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
+            const body = await response.json();
+            if (response.ok) {
+                const token = body.token;
+                dispatch({
+                    type: "authenticate",
+                    payload: token,
+                });
+                toast.success("Welcome back!")
+                navigate("/");
+            } else {
+                toast.error(`Login was not successful: ${body.message || JSON.stringify(body)}`);
+            }
+        } catch (error) {
+            toast.error(`Network error: ${error.message}`);
+        }
+    }
+
 
     return (
         <div className="container d-flex align-items-center justify-content-center">
-            <form onSubmit={handleSubmit} className="p-4">
+            <form onSubmit={sendLoginRequest} className="p-4">
                 <div className="mb-3">
                     <label htmlFor="exampleInputEmail1" className="form-label text-white">Email address</label>
                     <input
