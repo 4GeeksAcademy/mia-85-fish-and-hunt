@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import toast from "react-hot-toast"
 
@@ -41,8 +41,8 @@ export const Login = () => {
 
 
     return (
-        <div className="container d-flex align-items-center justify-content-center">
-            <form onSubmit={sendLoginRequest} className="p-4">
+        <div className="container d-flex flex-column align-items-center justify-content-center">
+            <form onSubmit={sendLoginRequest} className="p-4" style={{ minWidth: "350px" }}>
                 <div className="mb-3">
                     <label htmlFor="exampleInputEmail1" className="form-label text-white">Email address</label>
                     <input
@@ -67,6 +67,14 @@ export const Login = () => {
                 </div>
                 <button type="submit" className="btn btn-primary w-100">Submit</button>
             </form>
+            <ul className="nav d-flex flex-column align-items-center">
+                <li className="nav-item">
+                    <Link className="nav-link" to="/signup">Don't have an account? Signup here</Link>
+                </li>
+                <li className="nav-item">
+                    <Link className="nav-link" to="/">Go back to Home</Link>
+                </li>
+            </ul>
         </div>
     );
 };
