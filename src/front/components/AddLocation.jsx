@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { GoogleMap as RawMap, Marker, Autocomplete } from "@react-google-maps/api";
 import toast from "react-hot-toast";
 
-export default function AddLocation() {
+export const AddLocation = () => {
     const [isProcessing, setIsProcessing] = useState(false);
 
     // form state
