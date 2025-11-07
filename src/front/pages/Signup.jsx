@@ -10,6 +10,7 @@ export const Signup = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
 
     async function sendSignupRequest(e) {
         e.preventDefault();
@@ -84,7 +85,13 @@ export const Signup = () => {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Submit</button>
+                <button type="submit"
+                    className="btn btn-primary w-100"
+                    onClick={(e) => sendSignupRequest(e)}
+                    disabled={isProcessing}
+                    aria-busy={isProcessing}
+                >
+                    {isProcessing ? "Submitting" : "Submit"}</button>
             </form>
             <ul className="nav d-flex flex-column align-items-center">
                 <li className="nav-item">
