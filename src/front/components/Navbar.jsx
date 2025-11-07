@@ -1,14 +1,7 @@
 import { Link } from "react-router-dom";
 import { IsLoggedIn } from "./IsLoggedIn";
-import useGlobalReducer from "../hooks/useGlobalReducer";
-import { useEffect } from "react";
-
 
 export const Navbar = () => {
-	const { store } = useGlobalReducer();
-	// useEffect(() => {
-	// 	// Any side effects related to the navbar can be handled here
-	// }, [store.token]);
 	return (
 		<header className="py-2 px-1 border-bottom border-black-15 bg-transparent">
 			<nav className="navbar navbar-expand-lg navbar-dark">
@@ -28,7 +21,7 @@ export const Navbar = () => {
 					>
 						<span className="navbar-toggler-icon"></span>
 					</button>
-					<IsLoggedIn token={store.token} />
+					<IsLoggedIn />
 				</div>
 			</nav>
 		</header>

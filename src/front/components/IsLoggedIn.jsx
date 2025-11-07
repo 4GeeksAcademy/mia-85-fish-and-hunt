@@ -4,11 +4,14 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import toast from "react-hot-toast"
 import { useEffect, useState } from "react";
 
-
-export const IsLoggedIn = ({ token }) => {
+export const IsLoggedIn = () => {
     const { store, dispatch } = useGlobalReducer();
+    const token = store.token;
     const navigate = useNavigate()
-    const [isProcessing, setIsProcessing] = useState(false);
+
+    /* -------------------------------------------------------------------------- */
+    /*                         Function to Logout the user                        */
+    /* -------------------------------------------------------------------------- */
     async function sendLogoutRequest(e) {
         e.preventDefault();
         // Prevent double clicks while a request is in flight
@@ -45,6 +48,9 @@ export const IsLoggedIn = ({ token }) => {
         }
     }
 
+    /* -------------------------------------------------------------------------- */
+    /*           Logic to conditionally render based on LoggedIn Status           */
+    /* -------------------------------------------------------------------------- */
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     useEffect(() => {
         // If the user is not logged in
@@ -55,27 +61,25 @@ export const IsLoggedIn = ({ token }) => {
         }
     }, [token]);
 
+    /* -------------------------------------------------------------------------- */
+    /*                        Rendering for Logged In User                        */
+    /* -------------------------------------------------------------------------- */
     if (isLoggedIn) {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
-                <button
-                    type="button"
-                    className="btn btn-ridge"
-                    onClick={(e) => sendLogoutRequest(e)}
-                    disabled={isProcessing}
-                    aria-busy={isProcessing}
-                >
-                    {isProcessing ? "Logging out..." : "Logout"}
-                </button>
+                <button type="submit" className="btn btn-ridge" onClick={(e) => sendLogoutRequest(e)}>Logout</button>
+                <Link to="/profile" className="btn btn-outline-light ms-2">Profile</Link>
             </div>
         );
     };
 
+    /* -------------------------------------------------------------------------- */
+    /*                        Rendering for Logged Out User                       */
+    /* -------------------------------------------------------------------------- */
     if (!isLoggedIn) {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
                 <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                    {/* Routes use <Link to> */}
                     <li className="nav-item">
                         <Link
                             to="/login"
