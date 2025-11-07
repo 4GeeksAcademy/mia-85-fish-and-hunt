@@ -94,7 +94,8 @@ def handle_signup():
         password, method='pbkdf2:sha256', salt_length=16)
 
     # create & persist the user
-    newUser = User(email=email, password=hashed_password, user_name=user_name)
+    newUser = User(email=email.strip(), password=hashed_password,
+                   user_name=user_name.strip())
     db.session.add(newUser)
     db.session.commit()
 
@@ -119,7 +120,7 @@ def handle_login():
     if email is None or password is None:
         return jsonify(dict(message="Missing Credentials")), 400
     user = db.session.scalars(select(User).where(
-        User.email == email)).one_or_none()
+        User.email == email.strip())).one_or_none()
     if user is None:
         return jsonify(dict(message="User doesn't exist")), 400
     # compare the provided password with the stored hash
@@ -160,32 +161,37 @@ def get_all_locations():
 def create_locations():
     # ensure a JSON body was provided
     try:
-        body = request.get_json()
+        body = request.get_json(force=True, silent=True) or {}
     except Exception:
         return jsonify({"message": "Request body required"}), 400
     if not body:
         return jsonify({"message": "Request body required"}), 400
     name = body.get("name")
     type = body.get("type")
-    position = body.get("position")
-    directions = body.get("directions")
+    position = body.get("position") or {}
+    # directions = body.get("directions")
 
 # validate required fields
-    missing = []
+    errors = []
     if not name:
-        missing.append("name")
-    if not type:
-        missing.append("type")
-    if not position:
-        missing.append("position")
-    if missing:
-        return jsonify({"message": "Missing required fields", "fields": missing}), 400
+        errors.append("name")
+    if type not in {"fishing", "hunting"}:
+        errors.append("type must be 'fishing' or 'hunting'")
+    try:
+        lat = float(position.get("latitude"))
+        lng = float(position.get("longitude"))
+        if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+            errors.append("position out of range")
+    except (TypeError, ValueError):
+        errors.append("position.lat/lng must be numbers")
+    if errors:
+        return jsonify({"message": "Errors in required fields", "fields": errors}), 400
 
     new_location = Location(
-        name=name,
+        name=name.strip(),
         type=type,
-        position=position,
-        directions=directions
+        position={"lat": lat, "lng": lng},
+        directions=(body.get("directions") or None)
     )
 
     db.session.add(new_location)
