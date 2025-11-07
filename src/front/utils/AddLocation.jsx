@@ -53,7 +53,7 @@ export const AddLocation = () => {
 
         try {
             const res = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}api/locations`, // <-- plural route
+                `${import.meta.env.VITE_BACKEND_URL}api/location`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -84,15 +84,36 @@ export const AddLocation = () => {
     }
 
     return (
-        <div className="d-flex flex-column gap-3">
+        <div className="d-flex gap-3 w-100">
             <div style={{ width: "100%", height: 420, position: "relative" }}>
                 {/* Search box overlay */}
-                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2 }}>
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 16,
+                        left: 16,
+                        zIndex: 2,
+                        background: "rgba(0, 0, 0, 0.7)",       // translucent dark background
+                        padding: "6px 8px",
+                        borderRadius: 8,
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.3)", // soft shadow for contrast
+                        backdropFilter: "blur(4px)",             // slight blur for glass effect
+                    }}
+                >
                     <Autocomplete onLoad={(ac) => (acRef.current = ac)} onPlaceChanged={onPlaceChanged}>
                         <input
                             className="form-control"
                             placeholder="Search address/place"
-                            style={{ minWidth: 260 }}
+                            style={{
+                                minWidth: 260,
+                                background: "#fff",
+                                color: "#333",
+                                border: "1px solid #ccc",
+                                borderRadius: 6,
+                                padding: "6px 10px",
+                                fontSize: 14,
+                                boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                            }}
                             type="text"
                         />
                     </Autocomplete>
@@ -129,7 +150,7 @@ export const AddLocation = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="d-flex flex-column gap-2" noValidate>
+            <form onSubmit={handleSubmit} className="d-flex flex-column gap-2 w-50" noValidate>
                 <input
                     className="form-control"
                     value={name}
@@ -156,7 +177,7 @@ export const AddLocation = () => {
                 />
 
                 <button
-                    className="btn btn-hunter"
+                    className="btn btn-hunter text-white"
                     type="submit"
                     disabled={!hasPoint || !name.trim() || isProcessing}
                     aria-busy={isProcessing}

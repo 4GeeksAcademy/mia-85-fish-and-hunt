@@ -76,7 +76,6 @@ export const IsLoggedIn = () => {
                     {isProcessing ? "Logging out..." : "Logout"}
                 </button>
                 <Link to="/profile" className="btn btn-outline-light ms-2">Profile</Link>
-                <Link to="/add-location" className="btn btn-outline-light ms-2">Add Location</Link>
             </div>
         );
     };
