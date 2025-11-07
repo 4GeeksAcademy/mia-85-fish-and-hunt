@@ -229,3 +229,18 @@ def create_fish_species():
     #   "wiki_link": "https://en.wikipedia.org/wiki/Largemouth_bass",
     #   "image_link": "https://upload.wikimedia.org/wikipedia/commons/...
     # }
+
+
+@api.route("/user", methods=["GET"])
+def get_user_by_email():
+    """Get a single user by email passed as a query parameter `?email=`.
+    Example: GET /api/user?email=someone@example.com
+    """
+    email = request.args.get("email")
+    if not email:
+        return jsonify({"message": "Query parameter `email` is required"}), 400
+    user = db.session.scalars(select(User).where(
+        User.email == email)).one_or_none()
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+    return jsonify(user.serialize()), 200

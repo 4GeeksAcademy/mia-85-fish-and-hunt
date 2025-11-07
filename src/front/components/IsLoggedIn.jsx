@@ -4,7 +4,6 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import toast from "react-hot-toast"
 import { useEffect, useState } from "react";
 
-
 export const IsLoggedIn = ({ token }) => {
     const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate()
@@ -51,6 +50,7 @@ export const IsLoggedIn = ({ token }) => {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
                 <button type="submit" className="btn btn-ridge" onClick={(e) => sendLogoutRequest(e)}>Logout</button>
+                <Link to="/profile" className="btn btn-outline-light ms-2">Profile</Link>
             </div>
         );
     };
