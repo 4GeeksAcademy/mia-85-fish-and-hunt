@@ -9,8 +9,13 @@ export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const [isProcessing, setIsProcessing] = useState(false);
+
     async function sendLoginRequest(e) {
         e.preventDefault();
+        // Prevent double clicks while a request is in flight
+        if (isProcessing) return;
+        setIsProcessing(true);
         try {
             const response = await fetch(`${store.API_BASE_URL}/api/login`, {
                 method: "POST",
@@ -28,6 +33,7 @@ export const Login = () => {
                 dispatch({
                     type: "authenticate",
                     payload: token,
+
                 });
                 toast.success("Welcome back!")
                 navigate("/");
@@ -36,6 +42,11 @@ export const Login = () => {
             }
         } catch (error) {
             toast.error(`Network error: ${error.message}`);
+        }
+        finally {
+            // If the component is still mounted, re-enable interactions.
+            // In most successful logout flows we navigate away, so this is harmless.
+            setIsProcessing(false);
         }
     }
 
@@ -65,7 +76,12 @@ export const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Submit</button>
+                <button type="submit"
+                    className="btn btn-primary w-100"
+                    disabled={isProcessing}
+                    aria-busy={isProcessing}
+                >{isProcessing ? "Logging In" : "Login"}</button>
+
             </form>
             <ul className="nav d-flex flex-column align-items-center">
                 <li className="nav-item">
