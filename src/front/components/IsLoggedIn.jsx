@@ -8,6 +8,7 @@ export const IsLoggedIn = () => {
     const { store, dispatch } = useGlobalReducer();
     const token = store.token;
     const navigate = useNavigate()
+    const [isProcessing, setIsProcessing] = useState(false);
 
     /* -------------------------------------------------------------------------- */
     /*                         Function to Logout the user                        */
@@ -42,8 +43,6 @@ export const IsLoggedIn = () => {
         } catch (error) {
             toast.error(`Network error: ${error.message}`);
         } finally {
-            // If the component is still mounted, re-enable interactions.
-            // In most successful logout flows we navigate away, so this is harmless.
             setIsProcessing(false);
         }
     }
@@ -67,7 +66,15 @@ export const IsLoggedIn = () => {
     if (isLoggedIn) {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
-                <button type="submit" className="btn btn-ridge" onClick={(e) => sendLogoutRequest(e)}>Logout</button>
+                <button
+                    type="button"
+                    className="btn btn-ridge"
+                    onClick={(e) => sendLogoutRequest(e)}
+                    disabled={isProcessing}
+                    aria-busy={isProcessing}
+                >
+                    {isProcessing ? "Logging out..." : "Logout"}
+                </button>
                 <Link to="/profile" className="btn btn-outline-light ms-2">Profile</Link>
             </div>
         );
