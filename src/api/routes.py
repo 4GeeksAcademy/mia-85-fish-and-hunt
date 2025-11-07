@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Location, Fish
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from sqlalchemy import select
 
 api = Blueprint('api', __name__)
@@ -31,6 +31,32 @@ def handle_hello():
 def get_all_users():
     users = db.session.execute(select(User)).scalars().all()
     return jsonify([user.serialize() for user in users]), 200
+
+# ---------------------------------------------------------------------------- #
+#                               GET Current User                               #
+# ---------------------------------------------------------------------------- #
+
+
+@api.route("/user", methods=["GET"])
+@jwt_required()
+def get_current_user():
+    """Return the currently authenticated user's public info.
+
+    Protected route: client must send Authorization: Bearer <access_token>.
+    Returns the `user_name` and `email` for the logged-in user.
+    """
+    identity = get_jwt_identity()
+    try:
+        user_id = int(identity)
+    except Exception:
+        return jsonify({"message": "Invalid token identity"}), 401
+
+    user = db.session.scalars(select(User).where(
+        User.id == user_id)).one_or_none()
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+
+    return jsonify({"user_name": user.user_name, "email": user.email}), 200
 
 # ---------------------------------------------------------------------------- #
 #                               POST User Signup                               #
@@ -169,8 +195,8 @@ def create_locations():
     new_location = Location(
         name=name.strip(),
         type=type,
-        position=position,
-        directions=directions
+        position={"lat": lat, "lng": lng},
+        directions=(body.get("directions") or None)
     )
 
     db.session.add(new_location)

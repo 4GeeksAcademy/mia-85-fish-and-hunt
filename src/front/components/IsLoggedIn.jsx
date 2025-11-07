@@ -51,6 +51,7 @@ export const IsLoggedIn = ({ token }) => {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
                 <button type="submit" className="btn btn-ridge" onClick={(e) => sendLogoutRequest(e)}>Logout</button>
+                <Link to="/add-location" className="btn btn-hunter ms-lg-2">Add Location</Link>
             </div>
         );
     };
