@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Location, Fish
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from sqlalchemy import select
 
 api = Blueprint('api', __name__)
@@ -32,11 +32,10 @@ def get_all_users():
     users = db.session.execute(select(User)).scalars().all()
     return jsonify([user.serialize() for user in users]), 200
 
+
 # ---------------------------------------------------------------------------- #
 #                               GET Current User                               #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route("/user", methods=["GET"])
 @jwt_required()
 def get_current_user():
@@ -58,11 +57,10 @@ def get_current_user():
 
     return jsonify({"user_name": user.user_name, "email": user.email}), 200
 
+
 # ---------------------------------------------------------------------------- #
 #                               POST User Signup                               #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route('/signup', methods=["POST"])
 def handle_signup():
     # ensure a JSON body was provided
@@ -110,11 +108,10 @@ def handle_signup():
     #   "username": "newuser"
     # }
 
+
 # ---------------------------------------------------------------------------- #
 #                                POST Login User                               #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route("/login", methods=["POST"])
 def handle_login():
     body = request.json
@@ -138,11 +135,10 @@ def handle_login():
     )
     return jsonify(response_body), 201
 
+
 # ---------------------------------------------------------------------------- #
 #                               POST Logout                              #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route("/logout", methods=["POST"])
 def handle_logout():
     body = request.json
@@ -157,11 +153,10 @@ def get_all_locations():
     locations = db.session.execute(select(Location)).scalars().all()
     return jsonify([location.serialize() for location in locations]), 200
 
+
 # ---------------------------------------------------------------------------- #
 #                             POST Create Location                             #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route('/location', methods=['POST'])
 def create_locations():
     # ensure a JSON body was provided
@@ -213,11 +208,10 @@ def create_locations():
     #   "position": { "longitude": 45.0, "latitude": 62.0 }
     # }
 
+
 # ---------------------------------------------------------------------------- #
 #                               POST Create Fish                               #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route('/fish-species', methods=['POST'])
 def create_fish_species():
     # ensure a JSON body was provided
