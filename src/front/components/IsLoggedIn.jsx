@@ -4,10 +4,14 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import toast from "react-hot-toast"
 import { useEffect, useState } from "react";
 
-export const IsLoggedIn = ({ token }) => {
+export const IsLoggedIn = () => {
     const { store, dispatch } = useGlobalReducer();
+    const token = store.token;
     const navigate = useNavigate()
 
+    /* -------------------------------------------------------------------------- */
+    /*                         Function to Logout the user                        */
+    /* -------------------------------------------------------------------------- */
     async function sendLogoutRequest(e) {
         e.preventDefault();
         try {
@@ -36,6 +40,10 @@ export const IsLoggedIn = ({ token }) => {
             toast.error(`Network error: ${error.message}`);
         }
     }
+
+    /* -------------------------------------------------------------------------- */
+    /*           Logic to conditionally render based on LoggedIn Status           */
+    /* -------------------------------------------------------------------------- */
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     useEffect(() => {
         // If the user is not logged in
@@ -46,6 +54,9 @@ export const IsLoggedIn = ({ token }) => {
         }
     }, [token]);
 
+    /* -------------------------------------------------------------------------- */
+    /*                        Rendering for Logged In User                        */
+    /* -------------------------------------------------------------------------- */
     if (isLoggedIn) {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
@@ -55,11 +66,13 @@ export const IsLoggedIn = ({ token }) => {
         );
     };
 
+    /* -------------------------------------------------------------------------- */
+    /*                        Rendering for Logged Out User                       */
+    /* -------------------------------------------------------------------------- */
     if (!isLoggedIn) {
         return (
             <div className="collapse navbar-collapse" id="mainNav">
                 <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                    {/* Routes use <Link to> */}
                     <li className="nav-item">
                         <Link to="/login" className="nav-link">Login</Link>
                     </li>
