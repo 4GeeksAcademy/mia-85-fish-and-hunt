@@ -1,60 +1,55 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export function useHotspots(baseUrl = import.meta.env.VITE_BACKEND_URL) {
   const [hotspots, setHotspots] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null); // optional
+  const [error, setError] = useState(null);
+  const abortRef = useRef(null);
 
-  const mock = useMemo(
-    () => [
-      {
-        id: 1,
-        name: "Reef A",
-        type: "fishing",
-        position: { lat: 33.45, lng: -112.08 },
-        directions: "https://maps.app.goo.gl/PtrGVhafgeynBWJ27",
-      },
-      {
-        id: 2,
-        name: "WMA Gate",
-        type: "hunting",
-        position: { lat: 33.44, lng: -112.06 },
-        directions: "https://maps.app.goo.gl/kyy4kvNwRcy4NtDq9",
-      },
-      {
-        id: 3,
-        name: "Canal Bend",
-        type: "fishing",
-        position: { lat: 33.455, lng: -112.02 },
-        directions: "https://maps.app.goo.gl/YMqEBMrw2iAsN1ar9",
-      },
-    ],
-    []
+  // Ensure we have a clean base like "https://.../"
+  const apiBase = useMemo(
+    () => String(baseUrl || "").replace(/\/?$/, "/"),
+    [baseUrl]
   );
 
-  // Render immediately with mock; replace later with real data.
+  const refetch = useCallback(async () => {
+    // cancel any in-flight request
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${apiBase}api/location`, {
+        signal: ctrl.signal,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Normalize: make sure lat/lng are numbers
+      const normalized = (Array.isArray(data) ? data : []).map((h) => ({
+        ...h,
+        position: {
+          lat: Number(h?.position?.lat),
+          lng: Number(h?.position?.lng),
+        },
+      }));
+
+      setHotspots(normalized);
+    } catch (err) {
+      if (err.name !== "AbortError") setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [apiBase]);
+
   useEffect(() => {
-    setHotspots(mock);
-  }, [mock]);
+    refetch();
+    return () => abortRef.current?.abort();
+  }, [refetch]);
 
-  // When you’re ready to hit the API, uncomment this effect.
-  // useEffect(() => {
-  //   const ctrl = new AbortController();
-  //   const url = `${String(baseUrl).replace(/\/?$/, "/")}api/hotspots`;
-  //   setLoading(true);
-  //   setError(null);
-  //   fetch(url, { signal: ctrl.signal })
-  //     .then(r => {
-  //       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  //       return r.json();
-  //     })
-  //     .then(data => setHotspots(data ?? []))
-  //     .catch(err => {
-  //       if (err.name !== "AbortError") setError(err);
-  //     })
-  //     .finally(() => setLoading(false));
-  //   return () => ctrl.abort();
-  // }, [baseUrl]);
-
-  return { hotspots, loading, error };
+  return { hotspots, loading, error, refetch };
 }
+
+export default useHotspots;
