@@ -21,22 +21,6 @@ export const Home = () => {
 					tools built for fishing and hunting enthusiasts.
 				</p>
 
-				{/* COMMENTED OUT BUTTONS FOR NOW SO WE CAN FOCUS */}
-				{/* <div className="d-flex flex-wrap justify-content-center gap-3">
-					<button
-						onClick={() => handleButtonClick("Search")}
-						className="btn btn-hunter btn-lg"
-					>
-						<span>Search</span>
-					</button>
-
-					<button
-						onClick={() => handleButtonClick("Learn More")}
-						className="btn btn-outline-hunter btn-lg"
-					>
-						<span>Learn More</span>
-					</button>
-				</div> */}
 				<div className="d-flex flex-column align-items-center justify-content-center m-5">
 					<TheMap />
 				</div>

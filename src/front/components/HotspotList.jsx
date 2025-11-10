@@ -40,7 +40,7 @@ function HotspotList({
     return (
         <div
             className={`p-3 rounded-3 shadow-sm bg-white ${className}`}
-            style={{ width: 300 }}
+            style={{ width: 300, maxHeight: "400px", overflowY: "auto" }}
         >
             <div className="d-flex gap-2 mb-2">
                 <input
