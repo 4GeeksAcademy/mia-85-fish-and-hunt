@@ -1,5 +1,5 @@
 // GoogleMap.jsx
-import { GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
+import { GoogleMap, OverlayView, Marker } from "@react-google-maps/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { IoFish } from "react-icons/io5";
@@ -174,15 +174,21 @@ export default function MapBasic({
                 ))}
 
                 {mapRef.current && sel && (
-                    <InfoWindow key={sel.id} position={sel.position} onCloseClick={() => setSel(null)}>
-                        <div>
-                            <strong>{sel.name}</strong>
-                            <br />
-                            <small>{sel.type.charAt(0).toUpperCase() + sel.type.slice(1)}</small>
-                            <br />
-                            <small><a href={sel.directions} target="_blank" rel="noopener noreferrer">View on Google Maps</a></small>
+                    <OverlayView
+                        position={sel.position}
+                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                        getPixelPositionOffset={() => ({ x: -90, y: -100 })}
+                    >
+                        <div className="fh-popup" onClick={(e) => e.stopPropagation()}>
+                            <button className="fh-popup__close" onClick={() => setSel(null)} aria-label="Close">×</button>
+                            <div className="fh-popup__title">{sel.name}</div>
+                            <div className="fh-popup__type">{sel.type[0].toUpperCase() + sel.type.slice(1)}</div>
+                            <a className="fh-popup__link" href={sel.directions} target="_blank" rel="noopener noreferrer">
+                                View on Google Maps
+                            </a>
+                            <div className="fh-popup__tip" />
                         </div>
-                    </InfoWindow>
+                    </OverlayView>
                 )}
             </GoogleMap>
         </div>
