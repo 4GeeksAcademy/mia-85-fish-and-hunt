@@ -9,7 +9,6 @@ export const AddLocation = () => {
     // form state
     const [name, setName] = useState("");
     const [type, setType] = useState("fishing");
-    const [directions, setDirections] = useState("");
 
     // marker state (pin position chosen by user)
     const [selected, setSelected] = useState(null); // { lat, lng } | null
@@ -30,9 +29,6 @@ export const AddLocation = () => {
         const center = { lat: loc.lat(), lng: loc.lng() };
         mapRef.current?.panTo(center);
         mapRef.current?.setZoom(15);
-
-        // If you want to *suggest* a pin at the searched spot the first time:
-        if (!selected) setSelected(center);
     }
 
     async function handleSubmit(e) {
@@ -44,11 +40,15 @@ export const AddLocation = () => {
         }
 
         setIsProcessing(true);
+        // Prepare the Google Maps directions link
+        const latStr = selected.lat.toFixed(6);
+        const lngStr = selected.lng.toFixed(6);
+        const directionsUrl = `https://www.google.com/maps?q=${latStr},${lngStr}`;
         const payload = {
             name: name.trim(),
             type,
             position: { lat: selected.lat, lng: selected.lng },
-            directions: directions.trim() || null,
+            directions: directionsUrl,
         };
 
         try {
@@ -70,12 +70,11 @@ export const AddLocation = () => {
                 );
             }
 
-            await res.json(); // created location (if you need it)
+            await res.json();
             toast.success("Location added");
             // Keep the marker, just reset the form:
             setName("");
             setType("fishing");
-            setDirections("");
         } catch (err) {
             toast.error(String(err.message || err));
         } finally {
@@ -93,14 +92,18 @@ export const AddLocation = () => {
                         top: 16,
                         left: 16,
                         zIndex: 2,
-                        background: "rgba(0, 0, 0, 0.7)",       // translucent dark background
+                        background: "rgba(0, 0, 0, 0.7)",
                         padding: "6px 8px",
                         borderRadius: 8,
-                        boxShadow: "0 4px 14px rgba(0,0,0,0.3)", // soft shadow for contrast
-                        backdropFilter: "blur(4px)",             // slight blur for glass effect
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                        backdropFilter: "blur(4px)",
                     }}
                 >
-                    <Autocomplete onLoad={(ac) => (acRef.current = ac)} onPlaceChanged={onPlaceChanged}>
+                    <Autocomplete
+                        onLoad={(autocomplete) => (acRef.current = autocomplete)}
+                        onPlaceChanged={onPlaceChanged}
+                        options={{ fields: ["geometry"] }}
+                    >
                         <input
                             className="form-control"
                             placeholder="Search address/place"
@@ -151,39 +154,50 @@ export const AddLocation = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="d-flex flex-column gap-2 w-50" noValidate>
+                <label htmlFor="location-name" className="text-river fw-bold text-start" >Name your spot:</label>
                 <input
                     className="form-control"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Location name"
+                    placeholder="ex: Dawson's Creek Fishing Hole"
+                    id="location-name"
                     required
                 />
-
+                <label htmlFor="location-type" className="text-river fw-bold text-start">Is it a Fishing or Hunting spot?</label>
                 <select
                     className="form-select"
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                     aria-label="Location type"
+                    id="location-type"
+                    required
                 >
                     <option value="fishing">Fishing</option>
                     <option value="hunting">Hunting</option>
                 </select>
 
-                <input
-                    className="form-control"
-                    value={directions}
-                    onChange={(e) => setDirections(e.target.value)}
-                    placeholder="Directions URL (optional)"
-                />
-
                 <button
-                    className="btn btn-hunter text-white"
-                    type="submit"
-                    disabled={!hasPoint || !name.trim() || isProcessing}
+                    className={`btn btn-hunter text-white ${(!hasPoint || !name.trim() || isProcessing) ? "opacity-75" : ""}`}
+                    type="button" // not "submit" so we can handle both cases
+                    onClick={() => {
+                        if (isProcessing) return;
+
+                        if (!hasPoint || !name.trim()) {
+                            toast.error("Please drop a pin and enter a name before saving.");
+                            return;
+                        }
+
+                        handleSubmit(new Event("submit"));
+                    }}
                     aria-busy={isProcessing}
                 >
                     {isProcessing ? "Saving..." : "Save"}
                 </button>
+                {(!hasPoint || !name.trim()) && (
+                    <small className="text-mutedtone fst-italic">
+                        Drop a pin and name your spot to enable saving.
+                    </small>
+                )}
             </form>
         </div>
     );

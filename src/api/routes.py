@@ -166,10 +166,10 @@ def create_locations():
         return jsonify({"message": "Request body required"}), 400
     if not body:
         return jsonify({"message": "Request body required"}), 400
-    name = body.get("name")
+    name = (body.get("name") or "").strip()
     type = body.get("type")
     position = body.get("position") or {}
-    # directions = body.get("directions")
+    directions = body.get("directions")
 
 # validate required fields
     errors = []
@@ -178,8 +178,8 @@ def create_locations():
     if type not in {"fishing", "hunting"}:
         errors.append("type must be 'fishing' or 'hunting'")
     try:
-        lat = float(position.get("latitude"))
-        lng = float(position.get("longitude"))
+        lat = float(position.get("lat"))
+        lng = float(position.get("lng"))
         if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
             errors.append("position out of range")
     except (TypeError, ValueError):
@@ -191,7 +191,7 @@ def create_locations():
         name=name.strip(),
         type=type,
         position={"lat": lat, "lng": lng},
-        directions=(body.get("directions") or None)
+        directions=directions.strip()
     )
 
     db.session.add(new_location)
