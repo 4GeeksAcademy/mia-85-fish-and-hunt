@@ -81,3 +81,23 @@ body {
   border-top: 8px solid #fff;
   filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.08));
 }
+
+/* Favorite button inside the popup */
+.fh-popup__fav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  padding: 6px;
+  margin-left: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.fh-popup__fav:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.fh-popup__fav svg {
+  width: 20px;
+  height: 20px;
+}

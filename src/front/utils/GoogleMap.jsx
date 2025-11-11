@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { IoFish } from "react-icons/io5";
 import { RiCrosshair2Line } from "react-icons/ri";
-import { MdFavoriteBorder } from "react-icons/md";
+import { MdFavoriteBorder, MdFavorite } from "react-icons/md";
 import ZipSearch from "./ZipSearch";
 
 const DEFAULT_CENTER = { lat: 33.4484, lng: -112.074 };
@@ -75,6 +75,31 @@ export default function MapBasic({
     const setSel = onSelect ?? setInternalSelected;
 
     const mapRef = useRef(null);
+
+    // favorites stored as array of hotspot ids in localStorage
+    const [favorites, setFavorites] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem("fh_favs") || "[]");
+        } catch (e) {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        try {
+            localStorage.setItem("fh_favs", JSON.stringify(favorites));
+        } catch (e) {
+            // ignore
+        }
+    }, [favorites]);
+
+    function toggleFavorite(h) {
+        if (!h || !h.id) return;
+        setFavorites((prev) => {
+            if (prev.includes(h.id)) return prev.filter((i) => i !== h.id);
+            return [...prev, h.id];
+        });
+    }
 
     const data = useMemo(() => {
         const source = hotspots ?? [
@@ -188,7 +213,17 @@ export default function MapBasic({
                                 View on Google Maps
                             </a>
                             <div className="fh-popup__tip" />
-                            <button><MdFavoriteBorder /></button>
+                            <button
+                                className="fh-popup__fav"
+                                aria-label={favorites.includes(sel.id) ? "Unfavorite" : "Favorite"}
+                                onClick={() => toggleFavorite(sel)}
+                            >
+                                {favorites.includes(sel.id) ? (
+                                    <MdFavorite color="#ff4d6d" />
+                                ) : (
+                                    <MdFavoriteBorder />
+                                )}
+                            </button>
                         </div>
                     </OverlayView>
                 )}
