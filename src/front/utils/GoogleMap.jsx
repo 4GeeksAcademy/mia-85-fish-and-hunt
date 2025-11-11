@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { IoFish } from "react-icons/io5";
 import { RiCrosshair2Line } from "react-icons/ri";
+import { MdFavoriteBorder } from "react-icons/md";
 import ZipSearch from "./ZipSearch";
 
 const DEFAULT_CENTER = { lat: 33.4484, lng: -112.074 };
@@ -187,6 +188,7 @@ export default function MapBasic({
                                 View on Google Maps
                             </a>
                             <div className="fh-popup__tip" />
+                            <button><MdFavoriteBorder /></button>
                         </div>
                     </OverlayView>
                 )}
