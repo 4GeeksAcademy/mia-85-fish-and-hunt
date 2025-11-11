@@ -6,6 +6,7 @@ import { IoFish } from "react-icons/io5";
 import { RiCrosshair2Line } from "react-icons/ri";
 import { MdFavoriteBorder, MdFavorite } from "react-icons/md";
 import ZipSearch from "./ZipSearch";
+import toast from "react-hot-toast"
 
 const DEFAULT_CENTER = { lat: 33.4484, lng: -112.074 };
 
@@ -99,6 +100,11 @@ export default function MapBasic({
             if (prev.includes(h.id)) return prev.filter((i) => i !== h.id);
             return [...prev, h.id];
         });
+        toast.success(
+            favorites.includes(h.id)
+                ? `${h.name} removed from favorites`
+                : `${h.name} added to favorites`
+        );
     }
 
     const data = useMemo(() => {
