@@ -72,8 +72,8 @@ export default function MapBasic({
     mapId,
 }) {
     const { store } = useGlobalReducer();
-    const token = store?.token;
-    const API_BASE = String(store?.API_BASE_URL || "").replace(/\/?$/, "");
+    const token = store.token;
+    const API_BASE = String(store.API_BASE_URL || "").replace(/\/?$/, "");
 
 
     // --------------------------------------------------------------------------
@@ -110,7 +110,7 @@ export default function MapBasic({
     // --------------------------------------------------------------------------
     async function persistFavorites(nextIds) {
         if (!token) {
-            toast.error("Please log in to favorite spots.");
+            toast.error("Please login to favorite spots.");
             return false;
         }
         setSavingFavs(true);
@@ -127,8 +127,6 @@ export default function MapBasic({
                 const data = await res.json().catch(() => ({}));
                 throw new Error(data?.message || `Failed to update favorites (HTTP ${res.status})`);
             }
-            // optional: read back confirmed list
-            // const payload = await res.json();
             return true;
         } catch (err) {
             toast.error(String(err.message || err));
@@ -145,7 +143,7 @@ export default function MapBasic({
     const mapRef = useRef(null);
 
     // NEW: favorites state (ids) persisted to backend
-    const [favorites, setFavorites] = useState([]);         // [locationId, ...]
+    const [favorites, setFavorites] = useState([]);
     const [savingFavs, setSavingFavs] = useState(false);
 
     useEffect(() => {
