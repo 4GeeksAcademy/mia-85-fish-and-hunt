@@ -7,6 +7,7 @@ import { RiCrosshair2Line } from "react-icons/ri";
 import { MdFavoriteBorder, MdFavorite } from "react-icons/md";
 import ZipSearch from "./ZipSearch";
 import toast from "react-hot-toast"
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const DEFAULT_CENTER = { lat: 33.4484, lng: -112.074 };
 
@@ -70,21 +71,82 @@ export default function MapBasic({
     options = {},
     mapId,
 }) {
+    const { store } = useGlobalReducer();
+    const token = store?.token;
+    const API_BASE = String(store?.API_BASE_URL || "").replace(/\/?$/, "");
+
+
+    // --------------------------------------------------------------------------
+    // (Optional) Load the current user's liked ids on mount, if you expose a GET.
+    // If you don't have a GET route yet, you can skip this block safely.
+    // --------------------------------------------------------------------------
+    useEffect(() => {
+        let cancelled = false;
+        async function loadLikes() {
+            if (!token) return; // not logged in, leave empty
+            try {
+                // If you have GET /api/user (current) that returns liked ids, use it:
+                const res = await fetch(`${API_BASE}/api/user`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const ids = Array.isArray(data?.liked_location_ids)
+                    ? data.liked_location_ids
+                    : Array.isArray(data?.liked_locations)
+                        ? data.liked_locations.map((l) => l.id)
+                        : [];
+                if (!cancelled) setFavorites(ids);
+            } catch {
+                /* silent — hearts will start empty and update on click */
+            }
+        }
+        loadLikes();
+        return () => (cancelled = true);
+    }, [API_BASE, token]);
+
+    // --------------------------------------------------------------------------
+    // Save favorites to backend (PUT /api/user)
+    // --------------------------------------------------------------------------
+    async function persistFavorites(nextIds) {
+        if (!token) {
+            toast.error("Please log in to favorite spots.");
+            return false;
+        }
+        setSavingFavs(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/user`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ liked_locations: nextIds }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data?.message || `Failed to update favorites (HTTP ${res.status})`);
+            }
+            // optional: read back confirmed list
+            // const payload = await res.json();
+            return true;
+        } catch (err) {
+            toast.error(String(err.message || err));
+            return false;
+        } finally {
+            setSavingFavs(false);
+        }
+    }
+
     // Uncontrolled fallback:
     const [internalSelected, setInternalSelected] = useState(null);
     const sel = selected ?? internalSelected;
     const setSel = onSelect ?? setInternalSelected;
-
     const mapRef = useRef(null);
 
-    // favorites stored as array of hotspot ids in localStorage
-    const [favorites, setFavorites] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem("fh_favs") || "[]");
-        } catch (e) {
-            return [];
-        }
-    });
+    // NEW: favorites state (ids) persisted to backend
+    const [favorites, setFavorites] = useState([]);         // [locationId, ...]
+    const [savingFavs, setSavingFavs] = useState(false);
 
     useEffect(() => {
         try {
@@ -94,17 +156,28 @@ export default function MapBasic({
         }
     }, [favorites]);
 
-    function toggleFavorite(h) {
-        if (!h || !h.id) return;
-        setFavorites((prev) => {
-            if (prev.includes(h.id)) return prev.filter((i) => i !== h.id);
-            return [...prev, h.id];
-        });
-        toast.success(
-            favorites.includes(h.id)
-                ? `${h.name} removed from favorites`
-                : `${h.name} added to favorites`
-        );
+    // --------------------------------------------------------------------------
+    // Toggle favorite (optimistic UI + server sync, with rollback on failure)
+    // --------------------------------------------------------------------------
+    async function toggleFavorite(h) {
+        if (!h?.id) return;
+        if (!token) {
+            toast.error("Please log in to favorite spots.");
+            return;
+        }
+
+        const isFav = favorites.includes(h.id);
+        const next = isFav ? favorites.filter((i) => i !== h.id) : [...favorites, h.id];
+
+        // optimistic update
+        setFavorites(next);
+        toast.success(isFav ? `${h.name} removed from favorites` : `${h.name} added to favorites`);
+
+        const ok = await persistFavorites(next);
+        if (!ok) {
+            // revert on failure
+            setFavorites((prev) => (isFav ? [...prev, h.id] : prev.filter((i) => i !== h.id)));
+        }
     }
 
     const data = useMemo(() => {
@@ -223,12 +296,9 @@ export default function MapBasic({
                                 className="fh-popup__fav"
                                 aria-label={favorites.includes(sel.id) ? "Unfavorite" : "Favorite"}
                                 onClick={() => toggleFavorite(sel)}
+                                disabled={savingFavs}
                             >
-                                {favorites.includes(sel.id) ? (
-                                    <MdFavorite color="#ff4d6d" />
-                                ) : (
-                                    <MdFavoriteBorder />
-                                )}
+                                {favorites.includes(sel.id) ? <MdFavorite color="#ff4d6d" /> : <MdFavoriteBorder />}
                             </button>
                         </div>
                     </OverlayView>
