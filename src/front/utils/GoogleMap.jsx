@@ -6,37 +6,24 @@ import { IoFish } from "react-icons/io5";
 import { RiCrosshair2Line } from "react-icons/ri";
 import { MdFavoriteBorder, MdFavorite } from "react-icons/md";
 import ZipSearch from "./ZipSearch";
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
-const DEFAULT_CENTER = { lat: 33.4484, lng: -112.074 };
+const DEFAULT_CENTER_US = { lat: 39.828175, lng: -98.5795 }; // continental US centroid
+const DEFAULT_ZOOM_US = 4;
 
 const svgDataUrl = (node) =>
-    `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-        renderToStaticMarkup(node)
-    )}`;
+    `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(renderToStaticMarkup(node))}`;
 
 const DARK_STYLES = [
     { elementType: "geometry", stylers: [{ color: "#1d2c4d" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#8ec3b9" }] },
     { elementType: "labels.text.stroke", stylers: [{ color: "#1a3646" }] },
-    {
-        featureType: "administrative.country",
-        elementType: "geometry.stroke",
-        stylers: [{ color: "#4b6878" }],
-    },
+    { featureType: "administrative.country", elementType: "geometry.stroke", stylers: [{ color: "#4b6878" }] },
     { featureType: "poi", stylers: [{ visibility: "off" }] },
     { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-    {
-        featureType: "road",
-        elementType: "geometry",
-        stylers: [{ color: "#304a7d" }],
-    },
-    {
-        featureType: "water",
-        elementType: "geometry",
-        stylers: [{ color: "#0e1626" }],
-    },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#304a7d" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1626" }] },
 ];
 
 function useThemedStyles(theme, baseHidePoi = true) {
@@ -56,11 +43,11 @@ function useThemedStyles(theme, baseHidePoi = true) {
 }
 
 export default function MapBasic({
-    center = DEFAULT_CENTER,
-    zoom = 11,
-    hotspots, // optional
-    selected, // optional
-    onSelect, // optional
+    center = DEFAULT_CENTER_US,
+    zoom = DEFAULT_ZOOM_US,
+    hotspots,
+    selected,
+    onSelect,
     filter = { query: "", types: ["fishing", "hunting"] },
     theme = "auto",
     aspectRatio = "4 / 3",
@@ -72,45 +59,66 @@ export default function MapBasic({
     mapId,
 }) {
     const { store } = useGlobalReducer();
-    const token = store?.token;
-    const API_BASE = String(store?.API_BASE_URL || "").replace(/\/?$/, "");
+    const token = store.token;
+    const API_BASE = String(store.API_BASE_URL || "").replace(/\/?$/, "");
 
+    // ---------------------------------------------------------------------------
+    // Current user (GET /api/user)
+    // ---------------------------------------------------------------------------
+    const [user, setUser] = useState({
+        username: "",
+        email: "",
+        liked_location_ids: [],
+        zipcode: null,
+        added_location_ids: [],
+    });
 
-    // --------------------------------------------------------------------------
-    // (Optional) Load the current user's liked ids on mount, if you expose a GET.
-    // If you don't have a GET route yet, you can skip this block safely.
-    // --------------------------------------------------------------------------
     useEffect(() => {
         let cancelled = false;
-        async function loadLikes() {
-            if (!token) return; // not logged in, leave empty
+        async function loadUser() {
+            if (!token) {
+                if (!cancelled) {
+                    setUser((u) => ({ ...u, liked_location_ids: [], added_location_ids: [] }));
+                }
+                return;
+            }
             try {
-                // If you have GET /api/user (current) that returns liked ids, use it:
                 const res = await fetch(`${API_BASE}/api/user`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                const ids = Array.isArray(data?.liked_location_ids)
-                    ? data.liked_location_ids
-                    : Array.isArray(data?.liked_locations)
-                        ? data.liked_locations.map((l) => l.id)
-                        : [];
-                if (!cancelled) setFavorites(ids);
-            } catch {
-                /* silent — hearts will start empty and update on click */
+                if (!cancelled) {
+                    setUser({
+                        username: data.user_name || "",
+                        email: data.email || "",
+                        zipcode: data.zipcode ?? null,
+                        liked_location_ids: Array.isArray(data.liked_location_ids) ? data.liked_location_ids : [],
+                        added_location_ids: Array.isArray(data.added_location_ids) ? data.added_location_ids : [],
+                    });
+                }
+            } catch (e) {
+                // silent; hearts will just look empty when not available
+                console.error(e);
             }
         }
-        loadLikes();
-        return () => (cancelled = true);
+        loadUser();
+        return () => { cancelled = true; };
     }, [API_BASE, token]);
 
-    // --------------------------------------------------------------------------
-    // Save favorites to backend (PUT /api/user)
-    // --------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // Favorites state is derived from user.liked_location_ids
+    // ---------------------------------------------------------------------------
+    const [favorites, setFavorites] = useState([]);
+    useEffect(() => {
+        setFavorites(Array.isArray(user.liked_location_ids) ? user.liked_location_ids : []);
+    }, [user.liked_location_ids]);
+
+    // Persist favorites to backend and also sync the local user object
+    const [savingFavs, setSavingFavs] = useState(false);
     async function persistFavorites(nextIds) {
         if (!token) {
-            toast.error("Please log in to favorite spots.");
+            toast.error("Please login to favorite spots.");
             return false;
         }
         setSavingFavs(true);
@@ -127,8 +135,8 @@ export default function MapBasic({
                 const data = await res.json().catch(() => ({}));
                 throw new Error(data?.message || `Failed to update favorites (HTTP ${res.status})`);
             }
-            // optional: read back confirmed list
-            // const payload = await res.json();
+            // keep the user object in sync so refresh shows the right state immediately
+            setUser((prev) => ({ ...prev, liked_location_ids: [...nextIds] }));
             return true;
         } catch (err) {
             toast.error(String(err.message || err));
@@ -138,65 +146,36 @@ export default function MapBasic({
         }
     }
 
-    // Uncontrolled fallback:
-    const [internalSelected, setInternalSelected] = useState(null);
-    const sel = selected ?? internalSelected;
-    const setSel = onSelect ?? setInternalSelected;
-    const mapRef = useRef(null);
-
-    // NEW: favorites state (ids) persisted to backend
-    const [favorites, setFavorites] = useState([]);         // [locationId, ...]
-    const [savingFavs, setSavingFavs] = useState(false);
-
-    useEffect(() => {
-        try {
-            localStorage.setItem("fh_favs", JSON.stringify(favorites));
-        } catch (e) {
-            // ignore
-        }
-    }, [favorites]);
-
-    // --------------------------------------------------------------------------
-    // Toggle favorite (optimistic UI + server sync, with rollback on failure)
-    // --------------------------------------------------------------------------
     async function toggleFavorite(h) {
         if (!h?.id) return;
         if (!token) {
             toast.error("Please log in to favorite spots.");
             return;
         }
-
         const isFav = favorites.includes(h.id);
         const next = isFav ? favorites.filter((i) => i !== h.id) : [...favorites, h.id];
 
-        // optimistic update
+        // optimistic
         setFavorites(next);
         toast.success(isFav ? `${h.name} removed from favorites` : `${h.name} added to favorites`);
 
         const ok = await persistFavorites(next);
         if (!ok) {
-            // revert on failure
+            // rollback
             setFavorites((prev) => (isFav ? [...prev, h.id] : prev.filter((i) => i !== h.id)));
         }
     }
 
+    // Selection
+    const [internalSelected, setInternalSelected] = useState(null);
+    const sel = selected ?? internalSelected;
+    const setSel = onSelect ?? setInternalSelected;
+
+    // Map refs/options
+    const mapRef = useRef(null);
+
     const data = useMemo(() => {
-        const source = hotspots ?? [
-            {
-                id: 1,
-                name: "Reef A",
-                type: "fishing",
-                position: { lat: 33.45, lng: -112.08 },
-                directions: "https://maps.app.goo.gl/VuzYRoxzCWuBFvM8A",
-            },
-            {
-                id: 2,
-                name: "WMA Gate",
-                type: "hunting",
-                position: { lat: 33.44, lng: -112.06 },
-                directions: "https://maps.app.goo.gl/7Pa1f2RtMsReWN4KA",
-            },
-        ];
+        const source = Array.isArray(hotspots) ? hotspots : [];
         const q = (filter?.query ?? "").trim().toLowerCase();
         const types = new Set(filter?.types ?? ["fishing", "hunting"]);
         return source.filter(
@@ -204,20 +183,16 @@ export default function MapBasic({
         );
     }, [hotspots, filter]);
 
-    // Pan/zoom to selected
     useEffect(() => {
         if (!sel || !mapRef.current) return;
         mapRef.current.panTo(sel.position);
         mapRef.current.setZoom(13);
     }, [sel]);
 
-    // Marker icons
     const icons = useMemo(() => {
         const size = 34;
         const fish = svgDataUrl(<IoFish size={size} color="#f1f1f1" />);
-        const crosshair = svgDataUrl(
-            <RiCrosshair2Line size={size} color="#ff7900" />
-        );
+        const crosshair = svgDataUrl(<RiCrosshair2Line size={size} color="#ff7900" />);
         const g = window.google?.maps;
         return {
             fishing: {
@@ -234,7 +209,6 @@ export default function MapBasic({
     }, []);
 
     const themedStyles = useThemedStyles(theme);
-
     const mapOptions = useMemo(
         () => ({
             mapTypeControl: false,
@@ -248,7 +222,7 @@ export default function MapBasic({
 
     const wrapperStyle = {
         width: "100%",
-        aspectRatio, // responsive
+        aspectRatio,
         borderRadius: rounded,
         overflow: "hidden",
         boxShadow: shadow ? "0 10px 30px rgba(0,0,0,.12)" : undefined,
@@ -270,12 +244,7 @@ export default function MapBasic({
                 <ZipSearch defaultZoom={12} country="US" />
 
                 {data.map((h) => (
-                    <Marker
-                        key={h.id}
-                        position={h.position}
-                        onClick={() => setSel(h)}
-                        icon={icons[h.type]}
-                    />
+                    <Marker key={h.id} position={h.position} onClick={() => setSel(h)} icon={icons[h.type]} />
                 ))}
 
                 {mapRef.current && sel && (
@@ -285,7 +254,9 @@ export default function MapBasic({
                         getPixelPositionOffset={() => ({ x: -90, y: -100 })}
                     >
                         <div className="fh-popup" onClick={(e) => e.stopPropagation()}>
-                            <button className="fh-popup__close" onClick={() => setSel(null)} aria-label="Close">×</button>
+                            <button className="fh-popup__close" onClick={() => setSel(null)} aria-label="Close">
+                                ×
+                            </button>
                             <div className="fh-popup__title">{sel.name}</div>
                             <div className="fh-popup__type">{sel.type[0].toUpperCase() + sel.type.slice(1)}</div>
                             <a className="fh-popup__link" href={sel.directions} target="_blank" rel="noopener noreferrer">
