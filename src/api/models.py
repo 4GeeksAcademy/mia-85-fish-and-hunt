@@ -44,11 +44,15 @@ class Location(db.Model):
     position: Mapped[dict] = mapped_column(JSON, nullable=False)
     directions: Mapped[str] = mapped_column(String(255), nullable=True)
 
-    # liked_by_users = relationship(
-    #     "User",
-    #     secondary="user_likes",
-    #     back_populates="liked_locations"
-    # )
+    creator_id: Mapped[int] = mapped_column(
+        db.ForeignKey('user.id'), nullable=True)
+    creator: Mapped["User"] = relationship("User", backref="created_locations")
+
+    liked_by_users = relationship(
+        "User",
+        secondary="user_likes",
+        back_populates="liked_locations"
+    )
 
     def serialize(self):
         return {
@@ -57,6 +61,8 @@ class Location(db.Model):
             "type": self.type,
             "position": self.position,
             "directions": self.directions,
+            "creator_id": self.creator_id,
+            "liked_by": [u.id for u in self.liked_by_users],
         }
 
 
