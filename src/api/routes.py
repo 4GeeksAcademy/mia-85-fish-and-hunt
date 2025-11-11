@@ -57,6 +57,69 @@ def get_current_user():
 
     return jsonify({"user_name": user.user_name, "email": user.email}), 200
 
+# ---------------------------------------------------------------------------- #
+#                            PUT Update Current User                           #
+# ---------------------------------------------------------------------------- #
+
+
+@api.route("/user", methods=["PUT"])
+@jwt_required()
+def update_current_user():
+    identity = get_jwt_identity()
+    try:
+        user_id = int(identity)
+    except Exception:
+        return jsonify({"message": "Invalid token identity"}), 401
+
+    user = db.session.scalars(select(User).where(
+        User.id == user_id)).one_or_none()
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+
+    try:
+        body = request.get_json(force=True, silent=True) or {}
+    except Exception:
+        return jsonify({"message": "Invalid JSON body"}), 400
+
+    allowed = ["liked_locations", "added_locations"]
+    updated = {}
+
+    for key in allowed:
+        if key in body:
+            ids = body.get(key) or []
+            if not isinstance(ids, list):
+                return jsonify({"message": f"Field '{key}' must be an array of location ids"}), 400
+
+            # fetch Location instances for provided ids
+            if ids:
+                locs = db.session.scalars(
+                    select(Location).where(Location.id.in_(ids))).all()
+            else:
+                locs = []
+
+            # if the User model has this attribute, set it (relationship assignment)
+            if hasattr(user, key):
+                try:
+                    setattr(user, key, locs)
+                    updated[key] = [l.id for l in locs]
+                except Exception as e:
+                    db.session.rollback()
+                    return jsonify({"message": f"Failed to update {key}: {str(e)}"}), 500
+            else:
+                # model not yet updated to support this field
+                return jsonify({"message": f"User model does not implement '{key}' yet"}), 501
+
+    # persist changes if any
+    if updated:
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": f"Failed to save changes: {str(e)}"}), 500
+
+    return jsonify({"message": "User updated", "updated": updated}), 200
+
 
 # ---------------------------------------------------------------------------- #
 #                               POST User Signup                               #
