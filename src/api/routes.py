@@ -55,7 +55,29 @@ def get_current_user():
     if user is None:
         return jsonify({"message": "User not found"}), 404
 
-    return jsonify({"user_name": user.user_name, "email": user.email}), 200
+    # prepare liked and added locations if the relationships exist
+    liked = []
+    added = []
+    if hasattr(user, "liked_locations") and getattr(user, "liked_locations") is not None:
+        try:
+            liked = [loc.serialize()
+                     for loc in getattr(user, "liked_locations")]
+        except Exception:
+            liked = []
+    if hasattr(user, "added_locations") and getattr(user, "added_locations") is not None:
+        try:
+            added = [loc.serialize()
+                     for loc in getattr(user, "added_locations")]
+        except Exception:
+            added = []
+
+    return jsonify({
+        "user_name": user.user_name,
+        "email": user.email,
+        "zipcode": user.zipcode,
+        "liked_locations": liked,
+        "added_locations": added,
+    }), 200
 
 # ---------------------------------------------------------------------------- #
 #                            PUT Update Current User                           #
@@ -89,6 +111,9 @@ def update_current_user():
     if "email" in body:
         user.email = body["email"].strip()
         updated["email"] = user.email
+    if "zipcode" in body:
+        user.zipcode = body["zipcode"]
+        updated["zipcode"] = user.zipcode
     for key in allowed:
         if key in body:
             ids = body.get(key) or []
