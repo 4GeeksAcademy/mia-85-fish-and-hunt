@@ -83,7 +83,12 @@ def update_current_user():
 
     allowed = ["liked_locations", "added_locations"]
     updated = {}
-
+    if "user_name" in body:
+        user.user_name = body["user_name"].strip()
+        updated["user_name"] = user.user_name
+    if "email" in body:
+        user.email = body["email"].strip()
+        updated["email"] = user.email
     for key in allowed:
         if key in body:
             ids = body.get(key) or []
