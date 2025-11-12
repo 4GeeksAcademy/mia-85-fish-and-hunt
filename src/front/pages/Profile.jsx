@@ -23,7 +23,7 @@ export const Profile = () => {
         }
     }, [store.token]);
 
-    const [user, setUser] = useState({ username: "", email: "", liked_locations: [], added_locations: [], location: null });
+    const [user, setUser] = useState({ username: "", email: "", liked_locations: [], added_locations: [], zipcode: null });
     const [message, setMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [activities, setActivities] = useState(exampleActivities);
@@ -58,9 +58,10 @@ export const Profile = () => {
                 const mapped = {
                     username: data.user_name || "",
                     email: data.email || "",
-                    location: data.zipcode || null,
+                    zipcode: data.zipcode || null,
                     liked_locations: data.liked_locations || [],
                     added_locations: data.added_locations || [],
+                    zipcode: data.zipcode || null,
                 };
                 setUser(mapped);
                 // persist a local copy for cancel behavior
@@ -135,7 +136,7 @@ export const Profile = () => {
                     <div className="card">
                         <div className="card-body text-center">
                             <h5 className="card-title"><span><RxAvatar /></span> {user.username}</h5>
-                            {user.location ? <p className="text-muted mb-1"><span><FaLocationDot /></span> {user.location}</p> : null}
+                            {user.zipcode ? <p className="text-muted mb-1"><span><FaLocationDot /></span> {user.zipcode}</p> : null}
                             <p className="text-muted small"><span><HiOutlineMail /></span> {user.email}</p>
                             <div className="mt-3">
                                 <button
@@ -221,8 +222,8 @@ export const Profile = () => {
                                     <input
                                         type="number"
                                         className="form-control"
-                                        name="location"
-                                        value={user.location}
+                                        name="zipcode"
+                                        value={user.zipcode || ""}
                                         onChange={handleChange}
                                         disabled={!editMode}
                                         max="99999"
