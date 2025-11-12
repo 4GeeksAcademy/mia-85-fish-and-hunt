@@ -62,7 +62,6 @@ export default function TheMap() {
                                 aspectRatio="16 / 10"
                                 rounded="1rem"
                                 shadow
-                                zoom={12}
                             />
                         )}
                     </div>

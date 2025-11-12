@@ -23,19 +23,19 @@ export const Profile = () => {
         }
     }, [store.token]);
 
-    const [user, setUser] = useState({ username: "", email: "", location: "", zipcode: null });
+    const [user, setUser] = useState({ username: "", email: "", liked_locations: [], added_locations: [], location: null });
     const [message, setMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [activities, setActivities] = useState(exampleActivities);
-
+    const [isProcessing, setIsProcessing] = useState(false);
     const STORAGE_KEY = "profile_user";
+    const base = store.API_BASE_URL || "";
+    const url = `${base}/api/user`;
 
     // Load current user from protected endpoint when token is available
     useEffect(() => {
         async function loadUser() {
             if (!store.token) return;
-            const base = store.API_BASE_URL || "";
-            const url = `${base}/api/user`;
             try {
                 const res = await fetch(url, {
                     headers: {
@@ -58,8 +58,9 @@ export const Profile = () => {
                 const mapped = {
                     username: data.user_name || "",
                     email: data.email || "",
-                    zipcode: data.zipcode || null,
-                    location: data.zipcode ? String(data.zipcode) : "",
+                    location: data.zipcode || null,
+                    liked_locations: data.liked_locations || [],
+                    added_locations: data.added_locations || [],
                 };
                 setUser(mapped);
                 // persist a local copy for cancel behavior
@@ -79,14 +80,33 @@ export const Profile = () => {
         setUser((user) => ({ ...user, [name]: value }));
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         // basic validation
         if (!user.username || !user.email) {
             toast.error("Please provide username and email.");
             return;
         }
+        setIsProcessing(true);
+        try {
+            const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${store.token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user_name: user.username,
+                    email: user.email,
+                    zipcode: user.zipcode ? Number(user.zipcode) : null,
+                }),
+            });
+        } catch (error) {
+            toast.error("Network error while saving profile");
+            return;
+        }
         setEditMode(false);
+        setIsProcessing(false);
         toast.success("Profile saved");
     }
 
@@ -197,18 +217,19 @@ export const Profile = () => {
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label">Location</label>
+                                    <label className="form-label">Zipcode</label>
                                     <input
-                                        type="text"
+                                        type="number"
                                         className="form-control"
                                         name="location"
                                         value={user.location}
                                         onChange={handleChange}
                                         disabled={!editMode}
+                                        max="99999"
                                     />
                                 </div>
                                 <div className="d-flex gap-2">
-                                    <button type="submit" className="btn btn-primary" disabled={!editMode}>
+                                    <button type="submit" className="btn btn-primary" disabled={!editMode || isProcessing}>
                                         Save
                                     </button>
                                     <button type="button" className="btn btn-outline-secondary" onClick={handleCancel} disabled={!editMode}>
