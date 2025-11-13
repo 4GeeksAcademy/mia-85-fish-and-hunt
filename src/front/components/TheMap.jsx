@@ -5,6 +5,10 @@ import GoogleMap from "../utils/GoogleMap";
 import { useHotspots } from "../utils/useHotspots";
 import { AddLocation } from "../utils/AddLocation";
 
+// TO DO
+// ADDED LOCATIONS ARE PERSISTED TO DB
+// TO DO
+
 export default function TheMap() {
     /* -------------------------------------------------------------------------- */
     /*           Logic to conditionally render based on LoggedIn Status           */
