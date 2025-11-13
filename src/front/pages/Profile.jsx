@@ -231,6 +231,7 @@ export const Profile = () => {
                                 </div>
                                 <div className="d-flex gap-2">
                                     <button type="submit" className="btn btn-primary" disabled={!editMode || isProcessing}>
+
                                         Save
                                     </button>
                                     <button type="button" className="btn btn-outline-secondary" onClick={handleCancel} disabled={!editMode}>

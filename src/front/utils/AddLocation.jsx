@@ -1,5 +1,5 @@
 // src/front/components/AddLocation.jsx
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { GoogleMap as RawMap, Marker, Autocomplete } from "@react-google-maps/api";
 import toast from "react-hot-toast";
 
@@ -17,6 +17,14 @@ export const AddLocation = () => {
     // refs
     const mapRef = useRef(null);
     const acRef = useRef(null);
+
+    // Keep map centered on the selected pin
+    useEffect(() => {
+        if (selected && mapRef.current) {
+            mapRef.current.panTo(selected);
+            mapRef.current.setZoom(15);
+        }
+    }, [selected]);
 
     // Optional: user searches to move the map; the pin is still user-placed
     function onPlaceChanged() {
@@ -130,8 +138,8 @@ export const AddLocation = () => {
                         setSelected({ lat, lng });
                     }}
                     mapContainerStyle={{ width: "100%", height: "100%" }}
-                    center={{ lat: 33.4484, lng: -112.074 }}
-                    zoom={11}
+                    center={selected || { lat: 33.4484, lng: -112.074 }}
+                    zoom={selected ? 15 : 11}
                     options={{
                         mapTypeControl: false,
                         streetViewControl: false,
