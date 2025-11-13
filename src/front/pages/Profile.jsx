@@ -156,7 +156,7 @@ export const Profile = () => {
                     </div>
 
                     <div className="card mt-3">
-                        <div className="card-header">Liked locations</div>
+                        <div className="card-header fw-bold">Liked Locations</div>
                         <ul className="list-group list-group-flush">
                             {(!Array.isArray(user.liked_locations) || user.liked_locations.length === 0) && (
                                 <li className="list-group-item">No liked locations</li>
@@ -178,9 +178,7 @@ export const Profile = () => {
 
                 <div className="col-lg-8">
                     <div className="card">
-                        <div className="card-header d-flex justify-content-between align-items-center">
-                            <span>Profile Details</span>
-                        </div>
+                        <div className="card-header fw-bold">Profile Details</div>
                         <div className="card-body">
                             {message && (
                                 <div className="alert alert-info py-2" role="alert">
@@ -222,6 +220,7 @@ export const Profile = () => {
                                         onChange={handleChange}
                                         disabled={!editMode}
                                         max="99999"
+                                        placeholder="Example: 90210"
                                     />
                                 </div>
                                 <div className="d-flex gap-2">
