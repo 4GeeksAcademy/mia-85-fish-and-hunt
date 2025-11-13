@@ -174,6 +174,31 @@ export default function MapBasic({
     // Map refs/options
     const mapRef = useRef(null);
 
+    // allow dynamic centering: prefer a prop `center` but fall back to user's zipcode when available
+    const [currentCenter, setCurrentCenter] = useState(center);
+    useEffect(() => setCurrentCenter(center), [center]);
+
+    useEffect(() => {
+        if (!user || !user.zipcode) return;
+        if (!window.google || !window.google.maps || !window.google.maps.Geocoder) return;
+        try {
+            const geocoder = new window.google.maps.Geocoder();
+            geocoder.geocode({ address: `${user.zipcode}, USA` }, (results, status) => {
+                if (status === "OK" && results && results[0]) {
+                    const loc = results[0].geometry.location;
+                    const next = { lat: loc.lat(), lng: loc.lng() };
+                    setCurrentCenter(next);
+                    if (mapRef.current) {
+                        mapRef.current.panTo(next);
+                        mapRef.current.setZoom(12);
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Geocode error", e);
+        }
+    }, [user && user.zipcode]);
+
     const data = useMemo(() => {
         const source = Array.isArray(hotspots) ? hotspots : [];
         const q = (filter?.query ?? "").trim().toLowerCase();
@@ -234,7 +259,7 @@ export default function MapBasic({
             <GoogleMap
                 onLoad={(m) => (mapRef.current = m)}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={center}
+                center={currentCenter}
                 zoom={zoom}
                 options={mapOptions}
                 mapContainerClassName="map-container"
