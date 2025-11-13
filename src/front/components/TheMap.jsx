@@ -39,17 +39,19 @@ export default function TheMap() {
     /* -------------------------------------------------------------------------- */
     if (!isLoggedIn) {
         return (
-            <div className="container d-flex flex-column justify-content-center align-items-start gap-3">
-                <div className="d-flex gap-3 w-100">
-                    {/* LEFT: filterable list */}
-                    <HotspotList
-                        items={hotspots}
-                        selectedId={selected?.id}
-                        onSelect={setSelected}
-                        onFilterChange={setFilter}
-                    />
-                    {/* RIGHT: map */}
-                    <div style={{ flex: 1, minWidth: 420, maxWidth: 900 }}>
+            <div className="w-100">
+                <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100">
+                    {/* LEFT: filterable list (full width on mobile, auto on desktop) */}
+                    <div style={{ flex: "0 0 100%", flexBasis: "auto" }} className="d-lg-flex" >
+                        <HotspotList
+                            items={hotspots}
+                            selectedId={selected?.id}
+                            onSelect={setSelected}
+                            onFilterChange={setFilter}
+                        />
+                    </div>
+                    {/* RIGHT: map (full width on mobile, flex 1 on desktop) */}
+                    <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
                         {loading ? (
                             <div className="p-4 text-muted">Loading hotspots…</div>
                         ) : (
@@ -75,21 +77,23 @@ export default function TheMap() {
     /* -------------------------------------------------------------------------- */
     if (isLoggedIn) {
         return (
-            <div className="container d-flex flex-column justify-content-center align-items-start gap-3">
+            <div className="w-100">
                 <button className={`btn btn-${btnColor}`} onClick={() => setAddLocation((v) => !v)}>{btnText}</button>
                 {addLocation ? (
                     <AddLocation onDone={() => setAddLocation(false)} />
                 ) : (
-                    <div className="d-flex gap-3 w-100">
-                        {/* LEFT: filterable list */}
-                        <HotspotList
-                            items={hotspots}
-                            selectedId={selected?.id}
-                            onSelect={setSelected}
-                            onFilterChange={setFilter}
-                        />
-                        {/* RIGHT: map */}
-                        <div style={{ flex: 1, minWidth: 420, maxWidth: 900 }}>
+                    <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100 mt-3">
+                        {/* LEFT: filterable list (full width on mobile, auto on desktop) */}
+                        <div style={{ flex: "0 0 100%", flexBasis: "250px" }} className="d-lg-flex">
+                            <HotspotList
+                                items={hotspots}
+                                selectedId={selected?.id}
+                                onSelect={setSelected}
+                                onFilterChange={setFilter}
+                            />
+                        </div>
+                        {/* RIGHT: map (full width on mobile, flex 1 on desktop) */}
+                        <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
                             {loading ? (
                                 <div className="p-4 text-muted">Loading hotspots…</div>
                             ) : (
