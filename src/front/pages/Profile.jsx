@@ -156,28 +156,23 @@ export const Profile = () => {
                     </div>
 
                     <div className="card mt-3">
-                        <div className="card-header">Recent activity</div>
+                        <div className="card-header">Liked locations</div>
                         <ul className="list-group list-group-flush">
-                            {activities.length === 0 && (
-                                <li className="list-group-item">No recent activity</li>
+                            {(!Array.isArray(user.liked_locations) || user.liked_locations.length === 0) && (
+                                <li className="list-group-item">No liked locations</li>
                             )}
-                            {activities.map((it) => (
-                                <li key={it.id} className="list-group-item d-flex justify-content-between align-items-start">
+                            {Array.isArray(user.liked_locations) && user.liked_locations.map((loc) => (
+                                <li key={loc.id} className="list-group-item d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div className="fw-bold">{it.text}</div>
-                                        <div className="small text-muted">{it.date}</div>
+                                        <div className="fw-bold">{loc.name}</div>
+                                        <div className="small text-muted">{loc.type}</div>
                                     </div>
+                                    {loc.directions ? (
+                                        <a href={loc.directions} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary">Directions</a>
+                                    ) : null}
                                 </li>
                             ))}
                         </ul>
-                        <div className="card-body">
-                            <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => setActivities([])}
-                            >
-                                Clear
-                            </button>
-                        </div>
                     </div>
                 </div>
 
