@@ -34,6 +34,7 @@ db.init_app(app)
 
 # JWT Manager
 app.config["JWT_SECRET_KEY"] = os.environ.get("FLASK_APP_KEY")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False   # token never expires
 jwt = JWTManager(app)
 
 
