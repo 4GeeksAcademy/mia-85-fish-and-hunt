@@ -12,6 +12,8 @@ export default function TheMap() {
     const { store, dispatch } = useGlobalReducer();
     const token = store.token;
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [listOpen, setListOpen] = useState(false);
+
     useEffect(() => {
         // If the user is not logged in
         if (token == undefined) {
@@ -20,7 +22,6 @@ export default function TheMap() {
             setIsLoggedIn(true)
         }
     }, [token]);
-
 
     const { hotspots, loading } = useHotspots();
 
@@ -35,14 +36,29 @@ export default function TheMap() {
     const btnText = addLocation ? "View Map" : "Add a Location?";
 
     /* -------------------------------------------------------------------------- */
-    /*                    Rendering for Logged Out User & Vistors                  */
+    /*                    Rendering for Logged Out User & Visitors                  */
     /* -------------------------------------------------------------------------- */
     if (!isLoggedIn) {
         return (
             <div className="w-100">
+                {/* Toggle button for mobile */}
+                <button
+                    className="btn btn-sm btn-outline-secondary d-lg-none mb-2 w-100"
+                    onClick={() => setListOpen(!listOpen)}
+                >
+                    {listOpen ? "Hide Locations" : "Show Locations"}
+                </button>
+
                 <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100">
-                    {/* LEFT: filterable list (full width on mobile, auto on desktop) */}
-                    <div style={{ flex: "0 0 100%", flexBasis: "auto" }} className="d-lg-flex" >
+                    {/* LEFT: filterable list (collapsible on mobile) */}
+                    <div
+                        style={{
+                            flex: "0 0 100%",
+                            flexBasis: "250px",
+                            display: listOpen || window.innerWidth >= 992 ? "block" : "none"
+                        }}
+                        className="d-lg-flex"
+                    >
                         <HotspotList
                             items={hotspots}
                             selectedId={selected?.id}
@@ -50,7 +66,7 @@ export default function TheMap() {
                             onFilterChange={setFilter}
                         />
                     </div>
-                    {/* RIGHT: map (full width on mobile, flex 1 on desktop) */}
+                    {/* RIGHT: map */}
                     <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
                         {loading ? (
                             <div className="p-4 text-muted">Loading hotspots…</div>
@@ -82,34 +98,51 @@ export default function TheMap() {
                 {addLocation ? (
                     <AddLocation onDone={() => setAddLocation(false)} />
                 ) : (
-                    <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100 mt-3">
-                        {/* LEFT: filterable list (full width on mobile, auto on desktop) */}
-                        <div style={{ flex: "0 0 100%", flexBasis: "250px" }} className="d-lg-flex">
-                            <HotspotList
-                                items={hotspots}
-                                selectedId={selected?.id}
-                                onSelect={setSelected}
-                                onFilterChange={setFilter}
-                            />
-                        </div>
-                        {/* RIGHT: map (full width on mobile, flex 1 on desktop) */}
-                        <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
-                            {loading ? (
-                                <div className="p-4 text-muted">Loading hotspots…</div>
-                            ) : (
-                                <GoogleMap
-                                    hotspots={hotspots}
-                                    selected={selected}
+                    <>
+                        {/* Toggle button for mobile */}
+                        <button
+                            className="btn btn-sm btn-outline-secondary d-lg-none mb-2 w-100 mt-3"
+                            onClick={() => setListOpen(!listOpen)}
+                        >
+                            {listOpen ? "Hide Locations" : "Show Locations"}
+                        </button>
+
+                        <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100 mt-3">
+                            {/* LEFT: filterable list (collapsible on mobile) */}
+                            <div
+                                style={{
+                                    flex: "0 0 100%",
+                                    flexBasis: "250px",
+                                    display: listOpen || window.innerWidth >= 992 ? "block" : "none"
+                                }}
+                                className="d-lg-flex"
+                            >
+                                <HotspotList
+                                    items={hotspots}
+                                    selectedId={selected?.id}
                                     onSelect={setSelected}
-                                    filter={filter}
-                                    theme="auto"
-                                    aspectRatio="16 / 10"
-                                    rounded="1rem"
-                                    shadow
+                                    onFilterChange={setFilter}
                                 />
-                            )}
+                            </div>
+                            {/* RIGHT: map */}
+                            <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
+                                {loading ? (
+                                    <div className="p-4 text-muted">Loading hotspots…</div>
+                                ) : (
+                                    <GoogleMap
+                                        hotspots={hotspots}
+                                        selected={selected}
+                                        onSelect={setSelected}
+                                        filter={filter}
+                                        theme="auto"
+                                        aspectRatio="16 / 10"
+                                        rounded="1rem"
+                                        shadow
+                                    />
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </div>
         );
