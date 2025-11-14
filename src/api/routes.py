@@ -77,6 +77,7 @@ def get_current_user():
         "zipcode": user.zipcode,
         "liked_locations": liked,
         "added_locations": added,
+        "id": user.id,
     }), 200
 
 # ---------------------------------------------------------------------------- #
@@ -263,7 +264,7 @@ def create_locations():
     type = body.get("type")
     position = body.get("position") or {}
     directions = body.get("directions")
-
+    creator_id = body.get("creator_id")
 # validate required fields
     errors = []
     if not name:
@@ -284,7 +285,8 @@ def create_locations():
         name=name.strip(),
         type=type,
         position={"lat": lat, "lng": lng},
-        directions=directions.strip()
+        directions=directions.strip(),
+        creator_id=creator_id
     )
 
     db.session.add(new_location)
