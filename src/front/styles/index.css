@@ -101,3 +101,39 @@ body {
   width: 20px;
   height: 20px;
 }
+/* Keeps mobile behavior unchanged, then fixes widths on lg+ so map can grow */
+
+/* default (mobile): sidebar is full width and map sits below */
+.hotspot-sidebar {
+  width: 100%;
+  flex: 0 0 100%;
+}
+
+/* map will behave like normal flow on mobile */
+.map-flex {
+  flex: 0 0 auto;
+}
+
+/* desktop / lg and up: make sidebar a fixed column and let map flex-grow */
+@media (min-width: 992px) {
+  .hotspot-sidebar {
+    width: 250px; /* fixed sidebar width on desktop */
+    flex: 0 0 250px;
+  }
+
+  .map-flex {
+    flex: 1 1 auto; /* map expands to fill remaining horizontal space */
+    min-width: 0; /* allow flexbox to shrink properly */
+    width: 100%;
+    min-height: 300px;
+  }
+}
+/* Ensure TheMap displays with min-height on mobile */
+@media (max-width: 991px) {
+  .map-flex {
+    min-height: 300px;
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+  }
+}
