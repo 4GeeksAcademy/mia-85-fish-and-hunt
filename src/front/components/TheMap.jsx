@@ -49,11 +49,11 @@ export default function TheMap() {
                     {listOpen ? "Hide Locations" : "Show Locations"}
                 </button>
 
-                <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100">
+                <div className="d-flex flex-column flex-lg-row justify-content-start align-items-start gap-3 w-100">
                     {/* LEFT: filterable list (collapsible on mobile). CSS handles width on lg+ */}
                     <div
                         className={`hotspot-sidebar d-lg-flex`}
-                        style={{ display: listOpen || window.innerWidth >= 992 ? "block" : "none" }}
+                        style={{ display: listOpen || window.innerWidth >= 992 ? "flex" : "none" }}
                     >
                         <HotspotList
                             items={hotspots}
@@ -103,11 +103,11 @@ export default function TheMap() {
                             {listOpen ? "Hide Locations" : "Show Locations"}
                         </button>
 
-                        <div className="d-flex flex-column flex-lg-row justify-content-center align-items-center align-items-lg-stretch gap-3 w-100">
+                        <div className="d-flex flex-column flex-lg-row justify-content-start align-items-start align-items-lg-stretch gap-3 w-100">
                             {/* LEFT: filterable list (collapsible on mobile) */}
                             <div
                                 className="hotspot-sidebar d-lg-flex"
-                                style={{ display: listOpen || window.innerWidth >= 992 ? "block" : "none" }}
+                                style={{ display: listOpen || window.innerWidth >= 992 ? "flex" : "none" }}
                             >
                                 <HotspotList
                                     items={hotspots}

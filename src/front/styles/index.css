@@ -107,6 +107,8 @@ body {
 .hotspot-sidebar {
   width: 100%;
   flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* map will behave like normal flow on mobile */
@@ -119,6 +121,8 @@ body {
   .hotspot-sidebar {
     width: 250px; /* fixed sidebar width on desktop */
     flex: 0 0 250px;
+    justify-content: flex-start;
+    /* margin: auto; */
   }
 
   .map-flex {
