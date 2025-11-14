@@ -83,18 +83,20 @@ export default function MapBasic({
                 return;
             }
             try {
+
                 const res = await fetch(`${API_BASE}/api/user`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 if (!cancelled) {
+
                     setUser({
                         username: data.user_name || "",
                         email: data.email || "",
                         zipcode: data.zipcode ?? null,
-                        liked_location_ids: Array.isArray(data.liked_location_ids) ? data.liked_location_ids : [],
-                        added_location_ids: Array.isArray(data.added_location_ids) ? data.added_location_ids : [],
+                        liked_location_ids: Array.isArray(data.liked_locations) ? data.liked_locations.map((loc) => loc.id) : [],
+                        added_location_ids: Array.isArray(data.added_locations) ? data.added_locations : [],
                     });
                 }
             } catch (e) {
@@ -111,6 +113,7 @@ export default function MapBasic({
     // ---------------------------------------------------------------------------
     const [favorites, setFavorites] = useState([]);
     useEffect(() => {
+
         setFavorites(Array.isArray(user.liked_location_ids) ? user.liked_location_ids : []);
     }, [user.liked_location_ids]);
 
