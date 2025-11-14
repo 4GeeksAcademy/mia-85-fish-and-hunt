@@ -1,9 +1,50 @@
-// src/front/components/AddLocation.jsx
+import useGlobalReducer from "../hooks/useGlobalReducer";
 import { useRef, useState, useEffect } from "react";
 import { GoogleMap as RawMap, Marker, Autocomplete } from "@react-google-maps/api";
 import toast from "react-hot-toast";
 
 export const AddLocation = () => {
+    const { store } = useGlobalReducer();
+    // Load current user to access user's added locations
+    // 1st create a state variable to hold user's existing added locations info
+    const [user, setUser] = useState({ id: null, added_location_ids: [], });
+    // 2nd construct the api route needed to fetch GET the info
+    const base = store.API_BASE_URL || "";
+    const url = `${base}/api/user`;
+    useEffect(() => {
+        async function loadUser() {
+            if (!store.token) return;
+
+            try {
+                const res = await fetch(url, {
+                    headers: {
+                        Authorization: `Bearer ${store.token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    toast.error(data.message || "Could not load user");
+                    return;
+                }
+
+                const locations = data.added_locations.map((item) => {
+                    item.id
+                })
+
+                setUser({
+                    id: data.id,
+                    added_location_ids: locations || [],
+                });
+            } catch (e) {
+                console.error(e);
+                toast.error("Network error while loading user");
+            }
+        }
+        loadUser();
+    }, [store.token, url]);
+    // create state to disable button preventing multiple user clicks
     const [isProcessing, setIsProcessing] = useState(false);
 
     // form state
@@ -26,7 +67,7 @@ export const AddLocation = () => {
         }
     }, [selected]);
 
-    // Optional: user searches to move the map; the pin is still user-placed
+    // User searches to move the map but the pin is still user-placed and not removed
     function onPlaceChanged() {
         const place = acRef.current?.getPlace();
         const loc = place?.geometry?.location;
@@ -41,49 +82,93 @@ export const AddLocation = () => {
 
     async function handleSubmit(e) {
         e.preventDefault();
+
         if (isProcessing) return;
+
         if (!hasPoint || !name.trim() || !type) {
-            toast.error("Drop the pin and fill in the name/type.");
+            toast.error("Drop the pin and fill in the name and type.");
+            return;
+        }
+
+        if (!store.token) {
+            toast.error("Please log in to add a spot.");
+            navigate("/login");
             return;
         }
 
         setIsProcessing(true);
-        // Prepare the Google Maps directions link
+
         const latStr = selected.lat.toFixed(6);
         const lngStr = selected.lng.toFixed(6);
         const directionsUrl = `https://www.google.com/maps?q=${latStr},${lngStr}`;
+
         const payload = {
             name: name.trim(),
             type,
             position: { lat: selected.lat, lng: selected.lng },
             directions: directionsUrl,
+            creator_id: user.id,
         };
 
         try {
-            const res = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}api/location`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                }
-            );
+            // 1) create the Location
+            const res = await fetch(`${base}/api/location`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${store.token}`,
+                },
+                body: JSON.stringify(payload),
+            });
 
+            const created = await res.json().catch(() => ({}));
             if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
                 throw new Error(
-                    (Array.isArray(data?.errors) && data.errors.join(", ")) ||
-                    data?.message ||
+                    (Array.isArray(created?.errors) && created.errors.join(", ")) ||
+                    created?.message ||
                     "Failed to create location"
                 );
             }
 
-            await res.json();
+            if (!created.id) {
+                throw new Error("Backend did not return a new location id");
+            }
+
+            // 2) update the user's added_locations with the new id
+            const newIds = [
+                ...(user.added_location_ids || []),
+                created.id,
+            ];
+
+            const res2 = await fetch(`${base}/api/user`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${store.token}`,
+                },
+                body: JSON.stringify({ added_locations: newIds }),
+            });
+
+            const putBody = await res2.json().catch(() => ({}));
+
+            if (!res2.ok) {
+                throw new Error(
+                    putBody.message || "Failed to attach location to your profile"
+                );
+            }
+
+            // keep local state in sync
+            setUser((prev) => ({
+                ...prev,
+                added_location_ids: newIds,
+            }));
+
             toast.success("Location added");
-            // Keep the marker, just reset the form:
+            // reset only the form, keep the pin if you like
             setName("");
             setType("fishing");
         } catch (err) {
+            console.error(err);
             toast.error(String(err.message || err));
         } finally {
             setIsProcessing(false);
