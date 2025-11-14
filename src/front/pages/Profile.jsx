@@ -6,12 +6,6 @@ import { RxAvatar } from "react-icons/rx";
 import { HiOutlineMail } from "react-icons/hi";
 import { FaLocationDot } from "react-icons/fa6";
 
-
-const exampleActivities = [
-    { id: 1, text: "Logged a 5 lb bass", date: "2025-10-01" },
-    { id: 2, text: "Posted a fishing tip", date: "2025-09-18" },
-];
-
 export const Profile = () => {
     // Redirect to login if not logged in
     const navigate = useNavigate();
@@ -26,7 +20,6 @@ export const Profile = () => {
     const [user, setUser] = useState({ username: "", email: "", liked_locations: [], added_locations: [], zipcode: null });
     const [message, setMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);
-    const [activities, setActivities] = useState(exampleActivities);
     const [isProcessing, setIsProcessing] = useState(false);
     const STORAGE_KEY = "profile_user";
     const base = store.API_BASE_URL || "";
@@ -120,15 +113,6 @@ export const Profile = () => {
         setEditMode(false);
     }
 
-    function addActivitySample() {
-        const next = {
-            id: Date.now(),
-            text: "Shared a new hot spot",
-            date: new Date().toISOString().slice(0, 10),
-        };
-        setActivities((a) => [next, ...a].slice(0, 10));
-    }
-
     return (
         <div className="container my-5">
             <div className="row">
@@ -144,12 +128,6 @@ export const Profile = () => {
                                     onClick={() => setEditMode((s) => !s)}
                                 >
                                     {editMode ? "Editing..." : "Edit Profile"}
-                                </button>
-                                <button
-                                    className="btn btn-sm btn-outline-secondary"
-                                    onClick={addActivitySample}
-                                >
-                                    Add Activity
                                 </button>
                             </div>
                         </div>
