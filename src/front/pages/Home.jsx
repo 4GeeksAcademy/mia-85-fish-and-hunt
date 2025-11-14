@@ -22,9 +22,9 @@ export const Home = () => {
 				</p>
 
 				<div className="d-flex flex-column align-items-center justify-content-center m-3 m-md-5">
-					<div style={{ width: "100%", maxWidth: "800px", height: "auto", minHeight: "300px" }}>
-						<TheMap />
-					</div>
+					{/* <div style={{ width: "100%", maxWidth: "800px", height: "auto", minHeight: "300px" }}> */}
+					<TheMap />
+					{/* </div> */}
 				</div>
 			</div>
 		</main>

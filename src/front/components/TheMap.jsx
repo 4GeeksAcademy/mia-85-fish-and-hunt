@@ -49,15 +49,11 @@ export default function TheMap() {
                     {listOpen ? "Hide Locations" : "Show Locations"}
                 </button>
 
-                <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100">
-                    {/* LEFT: filterable list (collapsible on mobile) */}
+                <div className="d-flex flex-column flex-lg-row justify-content-start align-items-start gap-3 w-100">
+                    {/* LEFT: filterable list (collapsible on mobile). CSS handles width on lg+ */}
                     <div
-                        style={{
-                            flex: "0 0 100%",
-                            flexBasis: "250px",
-                            display: listOpen || window.innerWidth >= 992 ? "block" : "none"
-                        }}
-                        className="d-lg-flex"
+                        className={`hotspot-sidebar d-lg-flex`}
+                        style={{ display: listOpen || window.innerWidth >= 992 ? "flex" : "none" }}
                     >
                         <HotspotList
                             items={hotspots}
@@ -66,8 +62,8 @@ export default function TheMap() {
                             onFilterChange={setFilter}
                         />
                     </div>
-                    {/* RIGHT: map */}
-                    <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
+                    {/* RIGHT: map (full width on mobile, flex to fill remaining space on desktop) */}
+                    <div className="map-flex" style={{ width: "100%", height: "auto", minHeight: "300px" }}>
                         {loading ? (
                             <div className="p-4 text-muted">Loading hotspots…</div>
                         ) : (
@@ -94,7 +90,7 @@ export default function TheMap() {
     if (isLoggedIn) {
         return (
             <div className="w-100">
-                <button className={`btn btn-${btnColor}`} onClick={() => setAddLocation((v) => !v)}>{btnText}</button>
+                <button className={`btn btn-${btnColor} my-3`} onClick={() => setAddLocation((v) => !v)}>{btnText}</button>
                 {addLocation ? (
                     <AddLocation onDone={() => setAddLocation(false)} />
                 ) : (
@@ -107,15 +103,11 @@ export default function TheMap() {
                             {listOpen ? "Hide Locations" : "Show Locations"}
                         </button>
 
-                        <div className="d-flex flex-column flex-lg-row justify-content-center align-items-start gap-3 w-100 mt-3">
+                        <div className="d-flex flex-column flex-lg-row justify-content-start align-items-start align-items-lg-stretch gap-3 w-100">
                             {/* LEFT: filterable list (collapsible on mobile) */}
                             <div
-                                style={{
-                                    flex: "0 0 100%",
-                                    flexBasis: "250px",
-                                    display: listOpen || window.innerWidth >= 992 ? "block" : "none"
-                                }}
-                                className="d-lg-flex"
+                                className="hotspot-sidebar d-lg-flex"
+                                style={{ display: listOpen || window.innerWidth >= 992 ? "flex" : "none" }}
                             >
                                 <HotspotList
                                     items={hotspots}
@@ -125,7 +117,7 @@ export default function TheMap() {
                                 />
                             </div>
                             {/* RIGHT: map */}
-                            <div style={{ width: "100%", height: "auto", minHeight: "300px", flex: "1 1 auto" }}>
+                            <div className="map-flex">
                                 {loading ? (
                                     <div className="p-4 text-muted">Loading hotspots…</div>
                                 ) : (
