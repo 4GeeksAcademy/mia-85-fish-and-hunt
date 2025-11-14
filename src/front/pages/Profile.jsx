@@ -18,7 +18,6 @@ export const Profile = () => {
     }, [store.token]);
 
     const [user, setUser] = useState({ username: "", email: "", liked_locations: [], added_locations: [], zipcode: null });
-    const [message, setMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const STORAGE_KEY = "profile_user";
@@ -158,11 +157,6 @@ export const Profile = () => {
                     <div className="card">
                         <div className="card-header fw-bold">Profile Details</div>
                         <div className="card-body">
-                            {message && (
-                                <div className="alert alert-info py-2" role="alert">
-                                    {message}
-                                </div>
-                            )}
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
                                     <label className="form-label">User Name</label>
