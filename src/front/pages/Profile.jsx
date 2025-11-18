@@ -7,6 +7,7 @@ import { HiOutlineMail } from "react-icons/hi";
 import { FaLocationDot } from "react-icons/fa6";
 
 export const Profile = () => {
+    const [activeTab, setActiveTab] = useState("liked");
     // Redirect to login if not logged in
     const navigate = useNavigate();
     const { store } = useGlobalReducer();
@@ -132,25 +133,106 @@ export const Profile = () => {
                         </div>
                     </div>
 
+                    {/* Card for displaying User's Liked & Added locations (if any) */}
                     <div className="card mt-3">
-                        <div className="card-header fw-bold">Liked Locations</div>
-                        <ul className="list-group list-group-flush">
-                            {(!Array.isArray(user.liked_locations) || user.liked_locations.length === 0) && (
-                                <li className="list-group-item">No liked locations</li>
-                            )}
-                            {Array.isArray(user.liked_locations) && user.liked_locations.map((loc) => (
-                                <li key={loc.id} className="list-group-item d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <div className="fw-bold">{loc.name}</div>
-                                        <div className="small text-muted">{loc.type}</div>
-                                    </div>
-                                    {loc.directions ? (
-                                        <a href={loc.directions} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary">Directions</a>
-                                    ) : null}
+                        <div className="card-header pb-0">
+                            <ul className="nav nav-tabs card-header-tabs" role="tablist">
+                                <li className="nav-item" role="presentation">
+                                    <button
+                                        className={`nav-link ${activeTab === "liked" ? "active" : ""}`}
+                                        onClick={() => setActiveTab("liked")}
+                                        role="tab"
+                                    >
+                                        Liked Locations
+                                    </button>
                                 </li>
-                            ))}
-                        </ul>
+
+                                <li className="nav-item" role="presentation">
+                                    <button
+                                        className={`nav-link ${activeTab === "added" ? "active" : ""}`}
+                                        onClick={() => setActiveTab("added")}
+                                        role="tab"
+                                    >
+                                        Added Locations
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="card-body p-0">
+                            <ul className="list-group list-group-flush">
+
+                                {/* Liked Locations Tab */}
+                                {activeTab === "liked" && (
+                                    <>
+                                        {(!Array.isArray(user.liked_locations) ||
+                                            user.liked_locations.length === 0) && (
+                                                <li className="list-group-item">No liked locations</li>
+                                            )}
+
+                                        {Array.isArray(user.liked_locations) &&
+                                            user.liked_locations.map((loc) => (
+                                                <li
+                                                    key={loc.id}
+                                                    className="list-group-item d-flex justify-content-between align-items-start"
+                                                >
+                                                    <div>
+                                                        <div className="fw-bold">{loc.name}</div>
+                                                        <div className="small text-muted">{loc.type}</div>
+                                                    </div>
+
+                                                    {loc.directions && (
+                                                        <a
+                                                            href={loc.directions}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="btn btn-sm btn-outline-primary"
+                                                        >
+                                                            Directions
+                                                        </a>
+                                                    )}
+                                                </li>
+                                            ))}
+                                    </>
+                                )}
+
+                                {/* Added Locations Tab */}
+                                {activeTab === "added" && (
+                                    <>
+                                        {(!Array.isArray(user.added_locations) ||
+                                            user.added_locations.length === 0) && (
+                                                <li className="list-group-item">No added locations</li>
+                                            )}
+
+                                        {Array.isArray(user.added_locations) &&
+                                            user.added_locations.map((loc) => (
+                                                <li
+                                                    key={loc.id}
+                                                    className="list-group-item d-flex justify-content-between align-items-start"
+                                                >
+                                                    <div>
+                                                        <div className="fw-bold">{loc.name}</div>
+                                                        <div className="small text-muted">{loc.type}</div>
+                                                    </div>
+
+                                                    {loc.directions && (
+                                                        <a
+                                                            href={loc.directions}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="btn btn-sm btn-outline-primary"
+                                                        >
+                                                            Directions
+                                                        </a>
+                                                    )}
+                                                </li>
+                                            ))}
+                                    </>
+                                )}
+                            </ul>
+                        </div>
                     </div>
+
                 </div>
 
                 <div className="col-lg-8">

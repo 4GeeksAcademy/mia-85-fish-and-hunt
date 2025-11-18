@@ -1,5 +1,5 @@
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { GoogleMap as RawMap, Marker, Autocomplete } from "@react-google-maps/api";
 import toast from "react-hot-toast";
 
@@ -11,39 +11,35 @@ export const AddLocation = () => {
     // 2nd construct the api route needed to fetch GET the info
     const base = store.API_BASE_URL || "";
     const url = `${base}/api/user`;
-    useEffect(() => {
-        async function loadUser() {
-            if (!store.token) return;
+    const loadUser = useCallback(async () => {
+        if (!store.token) return;
 
-            try {
-                const res = await fetch(url, {
-                    headers: {
-                        Authorization: `Bearer ${store.token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+        try {
+            const res = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${store.token}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) {
-                    toast.error(data.message || "Could not load user");
-                    return;
-                }
+            const user = await res.json().catch(() => ({}));
 
-                const locations = data.added_locations.map((item) => {
-                    item.id
-                })
+            const locations = user.added_locations.map((item) => {
+                item.id
+            })
 
-                setUser({
-                    id: data.id,
-                    added_location_ids: locations || [],
-                });
-            } catch (e) {
-                console.error(e);
-                toast.error("Network error while loading user");
-            }
+            setUser({
+                id: user.id,
+                added_location_ids: locations || [],
+            });
+        } catch (e) {
+            console.error(e);
         }
+    }, [store.token]);
+    useEffect(() => {
         loadUser();
-    }, [store.token, url]);
+    }, [loadUser]);
+
     // create state to disable button preventing multiple user clicks
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -109,7 +105,6 @@ export const AddLocation = () => {
             directions: directionsUrl,
             creator_id: user.id,
         };
-
         try {
             // 1) create the Location
             const res = await fetch(`${base}/api/location`, {
@@ -129,40 +124,7 @@ export const AddLocation = () => {
                     "Failed to create location"
                 );
             }
-
-            if (!created.id) {
-                throw new Error("Backend did not return a new location id");
-            }
-
-            // 2) update the user's added_locations with the new id
-            const newIds = [
-                ...(user.added_location_ids || []),
-                created.id,
-            ];
-
-            const res2 = await fetch(`${base}/api/user`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${store.token}`,
-                },
-                body: JSON.stringify({ added_locations: newIds }),
-            });
-
-            const putBody = await res2.json().catch(() => ({}));
-
-            if (!res2.ok) {
-                throw new Error(
-                    putBody.message || "Failed to attach location to your profile"
-                );
-            }
-
-            // keep local state in sync
-            setUser((prev) => ({
-                ...prev,
-                added_location_ids: newIds,
-            }));
-
+            loadUser();
             toast.success("Location added");
             // reset only the form, keep the pin if you like
             setName("");
