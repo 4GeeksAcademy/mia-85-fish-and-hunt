@@ -14,7 +14,7 @@ export const Signup = () => {
 
     async function sendSignupRequest(e) {
         e.preventDefault();
-
+        setIsProcessing(true);
         try {
             const response = await fetch(`${store.API_BASE_URL}/api/signup`, {
                 method: "POST",
@@ -40,6 +40,7 @@ export const Signup = () => {
                 navigate("/")
             } else {
                 toast.error(`Signup was not successful: ${body.message || JSON.stringify(body)}`);
+                setIsProcessing(false);
             }
         } catch (error) {
             toast.error(`Network error: ${error.message}`);
