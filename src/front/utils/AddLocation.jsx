@@ -138,7 +138,7 @@ export const AddLocation = () => {
     }
 
     return (
-        <div className="d-flex gap-3 w-100">
+        <div className="d-flex flex-column flex-lg-row gap-3 w-100">
             <div style={{ width: "100%", height: 420, position: "relative" }}>
                 {/* Search box overlay */}
                 <div
@@ -208,7 +208,7 @@ export const AddLocation = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="d-flex flex-column gap-2 w-50" noValidate>
+            <form onSubmit={handleSubmit} className="d-flex flex-column gap-2 w-lg-50 w-md-100" noValidate>
                 <label htmlFor="location-name" className="text-river fw-bold text-start" >Name your spot:</label>
                 <input
                     className="form-control"
