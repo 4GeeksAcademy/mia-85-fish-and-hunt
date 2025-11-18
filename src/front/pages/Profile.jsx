@@ -1,5 +1,5 @@
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { RxAvatar } from "react-icons/rx";
@@ -205,6 +205,11 @@ export const Profile = () => {
                                     </button>
                                 </div>
                             </form>
+                            <ul className="nav justify-content-center align-items-center">
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/">Go back to Home</Link>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
