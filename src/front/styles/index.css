@@ -1,0 +1,143 @@
+/* Basic reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #121212 0%, #0b0b0b 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.nav-link:hover {
+  color: #ff7900;
+}
+
+.fh-popup {
+  position: relative;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  min-width: 180px;
+  max-width: 240px;
+  color: #222;
+  line-height: 1.25;
+}
+
+.fh-popup__title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.fh-popup__type {
+  font-size: 12px;
+  color: #6b7280; /* muted */
+  margin-bottom: 6px;
+  text-transform: capitalize;
+}
+
+.fh-popup__link {
+  font-size: 12px;
+  text-decoration: underline;
+  color: #2563eb;
+}
+
+.fh-popup__close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+}
+.fh-popup__close:hover {
+  color: #111;
+}
+
+/* little arrow */
+.fh-popup__tip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fff;
+  filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.08));
+}
+
+/* Favorite button inside the popup */
+.fh-popup__fav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  padding: 6px;
+  margin-left: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.fh-popup__fav:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.fh-popup__fav svg {
+  width: 20px;
+  height: 20px;
+}
+/* Keeps mobile behavior unchanged, then fixes widths on lg+ so map can grow */
+
+/* default (mobile): sidebar is full width and map sits below */
+.hotspot-sidebar {
+  width: 100%;
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* map will behave like normal flow on mobile */
+.map-flex {
+  flex: 0 0 auto;
+}
+
+/* desktop / lg and up: make sidebar a fixed column and let map flex-grow */
+@media (min-width: 992px) {
+  .hotspot-sidebar {
+    width: 250px; /* fixed sidebar width on desktop */
+    flex: 0 0 250px;
+    justify-content: flex-start;
+    /* margin: auto; */
+  }
+
+  .map-flex {
+    flex: 1 1 auto; /* map expands to fill remaining horizontal space */
+    min-width: 0; /* allow flexbox to shrink properly */
+    width: 100%;
+    min-height: 300px;
+  }
+}
+/* Ensure TheMap displays with min-height on mobile */
+@media (max-width: 991px) {
+  .map-flex {
+    min-height: 300px;
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+  }
+}
