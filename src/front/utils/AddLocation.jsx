@@ -131,7 +131,7 @@ export const AddLocation = () => {
                 </div>
 
                 <RawMap
-                    onLoad={(m) => (mapRef.centerv = m)}
+                    onLoad={(m) => (mapRef.current = m)}
                     onClick={(e) => {
                         const lat = e.latLng.lat();
                         const lng = e.latLng.lng();
@@ -139,7 +139,7 @@ export const AddLocation = () => {
                     }}
                     mapContainerStyle={{ width: "100%", height: "100%" }}
                     center={selected || { lat: 39.828175, lng: -98.5795 }}
-                    zoom={4}
+                    zoom={selected ? 15 : 4}
                     options={{
                         mapTypeControl: false,
                         streetViewControl: false,
