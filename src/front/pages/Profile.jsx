@@ -133,7 +133,7 @@ export const Profile = () => {
                     </div>
 
                     {/* Card for displaying User's Liked & Added locations (if any) */}
-                    <div className="card mt-3">
+                    <div className="card mt-3 overflow-auto" style={{ maxHeight: "250px" }}>
                         <div className="card-header pb-0">
                             <ul className="nav nav-tabs card-header-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
