@@ -87,7 +87,6 @@ export const Signup = () => {
                 </div>
                 <button type="submit"
                     className="btn btn-primary w-100"
-                    onClick={(e) => sendSignupRequest(e)}
                     disabled={isProcessing}
                     aria-busy={isProcessing}
                 >
