@@ -185,8 +185,8 @@ export const AddLocation = () => {
                         setSelected({ lat, lng });
                     }}
                     mapContainerStyle={{ width: "100%", height: "100%" }}
-                    center={selected || { lat: 33.4484, lng: -112.074 }}
-                    zoom={selected ? 15 : 11}
+                    center={selected || { lat: 39.828175, lng: -98.5795 }}
+                    zoom={selected ? 15 : 4}
                     options={{
                         mapTypeControl: false,
                         streetViewControl: false,

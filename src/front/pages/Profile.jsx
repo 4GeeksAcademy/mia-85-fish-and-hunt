@@ -51,7 +51,6 @@ export const Profile = () => {
                 const mapped = {
                     username: data.user_name || "",
                     email: data.email || "",
-                    zipcode: data.zipcode || null,
                     liked_locations: data.liked_locations || [],
                     added_locations: data.added_locations || [],
                     zipcode: data.zipcode || null,
