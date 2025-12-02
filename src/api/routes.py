@@ -1,10 +1,10 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-from flask import Flask, request, jsonify, url_for, Blueprint
+from flask import request, jsonify, Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import db, User, Location, Fish
-from api.utils import generate_sitemap, APIException
+from api.models import db, User, Location
+from api.utils import APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from sqlalchemy import select
@@ -14,19 +14,9 @@ api = Blueprint('api', __name__)
 # Allow CORS requests to this API
 CORS(api)
 
-
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-    return jsonify(response_body), 200
-
 # ---------------------------------------------------------------------------- #
 #                                 GET All Users                                #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route("/users", methods=["GET"])
 def get_all_users():
     users = db.session.execute(select(User)).scalars().all()
@@ -83,8 +73,6 @@ def get_current_user():
 # ---------------------------------------------------------------------------- #
 #                            PUT Update Current User                           #
 # ---------------------------------------------------------------------------- #
-
-
 @api.route("/user", methods=["PUT"])
 @jwt_required()
 def update_current_user():
@@ -303,50 +291,3 @@ def create_locations():
     #   "position": { "longitude": 45.0, "latitude": 62.0 }
     # }
 
-
-# ---------------------------------------------------------------------------- #
-#                               POST Create Fish                               #
-# ---------------------------------------------------------------------------- #
-@api.route('/fish-species', methods=['POST'])
-def create_fish_species():
-    # ensure a JSON body was provided
-    try:
-        body = request.get_json()
-    except Exception:
-        return jsonify({"message": "Request body required"}), 400
-    if not body:
-        return jsonify({"message": "Request body required"}), 400
-    name = body.get("name")
-    wiki_link = body.get("type")
-    image_link = body.get("position")
-
-# validate required fields
-    missing = []
-    if not name:
-        missing.append("name")
-    if not wiki_link:
-        missing.append("wiki_link")
-    if not image_link:
-        missing.append("image_link")
-    if missing:
-        return jsonify({"message": "Missing required fields", "fields": missing}), 400
-
-    new_fish = Fish(
-        name=name,
-        wiki_link=wiki_link,
-        image_link=image_link
-    )
-
-    db.session.add(new_fish)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Fish species added",
-        "fish": new_fish.serialize()
-    }), 201
-    # Example request body:
-    # {
-    #   "name": "Largemouth Bass",
-    #   "wiki_link": "https://en.wikipedia.org/wiki/Largemouth_bass",
-    #   "image_link": "https://upload.wikimedia.org/wikipedia/commons/...
-    # }

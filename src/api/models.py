@@ -6,10 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 db = SQLAlchemy()
 
-# ---------------------------------------------------------------------
 # Association table for the many-to-many "likes" relation
-# (must be defined BEFORE the models that reference it)
-# ---------------------------------------------------------------------
 user_likes = Table(
     "user_likes",
     db.metadata,
@@ -79,19 +76,4 @@ class Location(db.Model):
             "directions": self.directions,
             "creator_id": self.creator_id,
             "liked_by_user_ids": [u.id for u in self.liked_by_users],
-        }
-
-
-class Fish(db.Model):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
-    wiki_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    image_link: Mapped[str] = mapped_column(String(255), nullable=True)
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "wiki_link": self.wiki_link,
-            "image_link": self.image_link,
         }
